@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Emp_Status {
+  ACTIVE
+  INACTIVE
+  TERMINATED
+}
+
+enum Policy_Ack {
+  ACK
+  NOT_ACK 
+}
+
+
+model employee {
+  emp_id   String    @id @default(uuid())
+  name     String
+  email    String @unique
+  city     String?
+  state    String?
+  pincode  String?
+  dep_id   Int
+  role_id  Int
+  status   Emp_Status
+  policy_ack_status Policy_Ack
+  createdAt DateTime @default(now())
+
+  //relations
+  documents  emp_docu_mapping[]   // 1 employee → many docs
+}
+
+model documents {
+  doc_id   Int    @id @default(autoincrement())
+  doc_type String @unique
+
+  // back relation
+  emp_docs emp_docu_mapping[]
+}
+
+model emp_docu_mapping {
+  id      Int    @id @default(autoincrement())
+  emp_id  String
+  doc_id  Int
+  doc_url String
+
+  // relations
+  emp employee  @relation(fields: [emp_id], references: [emp_id])
+  doc documents @relation(fields: [doc_id], references: [doc_id])
+
+  @@unique([emp_id, doc_id]) // an employee can’t upload the same doc twice
+}
