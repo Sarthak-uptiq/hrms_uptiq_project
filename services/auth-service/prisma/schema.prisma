@@ -21,11 +21,12 @@ enum AuthRole {
 }
 
 model User {
-  user_id Int @default(autoincrement())
+  id Int @id @default(autoincrement())
+  user_id String
   email String @unique
   password String 
   authrole AuthRole
   createdAt DateTime @default(now())
 
-  @@id([user_id, authrole])
+  @@unique([user_id, authrole])
 }

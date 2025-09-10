@@ -9,7 +9,7 @@ const JWT_SECRET_KEY: string  = process.env.SECRET_KEY!;
 const EXPIRY: string = process.env.TOKEN_EXPIRY!;
 
 type UserData = {
-  id: string;
+  id: Number;
   email: string;
   role: string;
 };
@@ -33,6 +33,13 @@ export const register = async (req: Request, res: Response) => {
             return res.status(409).json({
                 success: false,
                 message: "User already exists"
+            });
+        }
+
+        if(body.role != "CANDIDATE"){
+            return res.status(409).json({
+                success: false,
+                message: "User not allowed to register"
             });
         }
 

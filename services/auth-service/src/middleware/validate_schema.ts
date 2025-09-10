@@ -12,10 +12,10 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
     } catch (error: any) {
         console.log("input validatoin failed");
 
-        res.status(400).json({
+        return res.status(400).json({
             message: "Input validation failed",
             success: false,
             error: error
-        })
+        });
     }
 }
