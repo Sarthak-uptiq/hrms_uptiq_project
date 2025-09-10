@@ -4,14 +4,15 @@ import type{ UserInput } from "../schema/auth.schema.ts";
 
 const prisma = new PrismaClient();
 
-export const createUser = async (user: UserInput) => {
+export const createUser = async (user: UserInput, uid: string) => {
     const hashedPass = await bcrypt.hash(user.password, 10);
     console.log("in create user");
     return prisma.user.create({
             data: {
                 email: user.email,
                 password: hashedPass,
-                authrole: user.role
+                authrole: user.role,
+                user_id: uid
             }
         });
 }

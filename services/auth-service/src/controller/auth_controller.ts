@@ -3,13 +3,14 @@ import type{Request, Response} from "express";
 import type{ UserInput } from "../schema/auth.schema.ts";
 import {createUser, findExistingUser } from "../repository/repository.ts";
 import bcrypt from "bcrypt";
+import {v5 as uuidv5} from "uuid";
 
 
 const JWT_SECRET_KEY: string  = process.env.SECRET_KEY!;
 const EXPIRY: string = process.env.TOKEN_EXPIRY!;
 
 type UserData = {
-  id: Number;
+  id: string;
   email: string;
   role: string;
 };
@@ -43,7 +44,10 @@ export const register = async (req: Request, res: Response) => {
             });
         }
 
-        const user = await createUser(body);
+        const NAMESPACE = uuidv5.DNS;
+        const uuid = uuidv5(body.email, NAMESPACE);
+
+        const user = await createUser(body, uuid);
 
         const token = generateToken({
             id: user.user_id,
