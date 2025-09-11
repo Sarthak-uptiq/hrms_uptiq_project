@@ -1,11 +1,11 @@
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
-import type{ UserInput } from "../schema/auth.schema.ts";
+import type{ RegisterSchemaType } from "../schema/auth.schema.ts";
 
 const prisma = new PrismaClient();
 
-export const createUser = async (user: UserInput, uid: string) => {
-    const hashedPass = await bcrypt.hash(user.password, 10);
+export const createUser = async (user: RegisterSchemaType, uid: string, password: string) => {
+    const hashedPass = await bcrypt.hash(password, 10);
     console.log("in create user");
     return prisma.user.create({
             data: {
@@ -21,5 +21,12 @@ export const findExistingUser = async (email: string) => {
     console.log("in find user");
     return prisma.user.findUnique({
         where: {email}
+    });
+}
+
+
+export const findUserByID = async (user_id: string) => {
+    return prisma.user.findUnique({
+        where: {user_id}
     });
 }

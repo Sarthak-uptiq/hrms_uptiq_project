@@ -22,9 +22,9 @@ enum AuthRole {
 
 model User {
   id Int @id @default(autoincrement())
-  user_id String
+  user_id String @unique
   email String @unique
-  password String 
+  password String @unique
   authrole AuthRole
   createdAt DateTime @default(now())
 

@@ -1,9 +1,10 @@
 import jwt from 'jsonwebtoken';
-import type{Request, Response} from "express";
-import type{ UserInput } from "../schema/auth.schema.ts";
-import {createUser, findExistingUser } from "../repository/repository.ts";
+import type{Request, Response, NextFunction} from "express";
+import type{ UserInput, RegisterSchemaType } from "../schema/auth.schema.ts";
+import {createUser, findExistingUser, findUserByID } from "../repository/repository.ts";
 import bcrypt from "bcrypt";
 import {v5 as uuidv5} from "uuid";
+import generator from 'generate-password';
 
 
 const JWT_SECRET_KEY: string  = process.env.SECRET_KEY!;
@@ -25,9 +26,20 @@ const generateToken = ({ id, email, role }: UserData): string => {
     return jwt.sign( payload, JWT_SECRET_KEY, {expiresIn: Number(EXPIRY)});
 };
 
-export const register = async (req: Request, res: Response) => {
+const generatePassword = (): string => {
+    return generator.generate({
+    length: 10,
+    numbers: true,
+    symbols: true,
+    uppercase: true,
+    lowercase: true,
+    excludeSimilarCharacters: true, // Avoids characters like 'l', 'I', '1', 'o', 'O', '0'
+});
+}
+
+export const register = async (req: Request, res: Response, next: NextFunction) => {
     try{
-        const body = req.body as UserInput;
+        const body = req.body as RegisterSchemaType;
         const userExists: boolean = (await findExistingUser(body.email))?true:false;
 
         if(userExists){
@@ -37,17 +49,20 @@ export const register = async (req: Request, res: Response) => {
             });
         }
 
-        if(body.role != "CANDIDATE"){
-            return res.status(409).json({
-                success: false,
-                message: "User not allowed to register"
-            });
+        const requestingUser = await findUserByID(body.requestingUserId);
+
+        if(!requestingUser){
+            return res.status(404).json({message: "Reqesting user does not exist"});
+        }
+
+        if(requestingUser.authrole!=="HR"){
+            return res.status(404).json({message: "Request Denied: Unauthorized"});
         }
 
         const NAMESPACE = uuidv5.DNS;
         const uuid = uuidv5(body.email, NAMESPACE);
 
-        const user = await createUser(body, uuid);
+        const user = await createUser(body, uuid, generatePassword());
 
         const token = generateToken({
             id: user.user_id,
@@ -56,14 +71,14 @@ export const register = async (req: Request, res: Response) => {
         });
 
         res.cookie("auth_token", token, { httpOnly: true, sameSite: "lax", maxAge: Number(EXPIRY)});
-        res.status(201).json({message: "User Created successfully"});
+        return res.status(201).json({message: "User Created successfully"});
     } catch(error){
         console.log(`Error in registering user: ${error}`);
-        res.status(500).json({message: `Server error ${error}`});
+        next(error);
     }
 }
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
     try{
         const body = req.body as UserInput;
 
@@ -82,22 +97,26 @@ export const login = async (req: Request, res: Response) => {
             return res.status(401).json({message: "Password Incorrect!!"});
         }
 
-        const token = generateToken({
-                id: userExists.user_id,
-                email: userExists.email,
-                role: userExists.authrole
-            });
+        if(userExists.authrole==="EMPLOYEE" && body.role!=="EMPLOYEE"){
+            return res.status(409).json({message: "Invalid role"});
+        }
 
-            res.cookie("auth_token", token, { httpOnly: true, sameSite: "lax", maxAge: Number(EXPIRY)});
-            res.status(201).json({message: "User logged in successfully"});
+        const token = generateToken({
+            id: userExists.user_id,
+            email: userExists.email,
+            role: userExists.authrole
+        });
+
+        res.cookie("auth_token", token, { httpOnly: true, sameSite: "lax", maxAge: Number(EXPIRY)});
+        return res.status(201).json({message: "User logged in successfully"});
 
     } catch(error){
         console.log(`Error in login: ${error}`);
-        res.status(500).json({message: `Server error ${error}`});
+        next(error);
     }
 }
 
-export const verifyToken = async (req: Request, res: Response) => {
+export const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.cookies.auth_token;
 
     if(!token){
@@ -114,10 +133,10 @@ export const verifyToken = async (req: Request, res: Response) => {
             role: decoded.role
         }; 
 
-        res.status(200).json({message: `Token verified returning user: ${user}`});
+        return res.status(200).json({message: `Token verified returning user: ${user}`});
 
     } catch(error){
         console.log("Error in decoding token :", error);
-        res.status(401).json({ message: "Invalid token"});
+        next(error);
     }
 }

@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { errorHandler } from "./middleware/errorHandler.ts";
 
 // importing auth route for authentication
 
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
+app.use(errorHandler);
 
 
 app.listen(PORT, () => {
