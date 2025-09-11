@@ -16,10 +16,6 @@ export const validateEmpStatus = (
   } catch (error) {
     console.log("input validatoin failed");
 
-    return res.status(400).json({
-      message: "Input validation for update failed",
-      success: false,
-      error: error,
-    });
+    next(error);
   }
 };

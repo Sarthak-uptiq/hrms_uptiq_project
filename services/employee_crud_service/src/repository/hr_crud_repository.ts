@@ -1,0 +1,87 @@
+import { prisma } from "../utils.ts";
+
+export async function isHR(email: string) {
+  const hr = await prisma.employee.findUnique({
+    where: { email },
+    select: { role_id: true },
+  });
+  return hr && hr.role_id === 1;
+}
+
+export async function getRoleByName(role_name: string) {
+  return prisma.role.findUnique({ where: { role_name } });
+}
+
+export async function getDepartmentByName(dep_name: string) {
+  return prisma.department.findUnique({ where: { dep_name } });
+}
+
+export async function addEmployee(data: {
+  name: string;
+  email: string;
+  city?: string | null;
+  state?: string | null;
+  pincode?: string | null;
+  role_id: number;
+  dep_id: number;
+}) {
+  return prisma.employee.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      city: data.city ?? null,
+      state: data.state ?? null,
+      pincode: data.pincode ?? null,
+      role_id: data.role_id,
+      dep_id: data.dep_id,
+      status: "ACTIVE",
+      policy_ack_status: "PENDING",
+    },
+  });
+}
+
+export async function terminateEmployee(email: string) {
+  return prisma.employee.update({
+    where: { email },
+    data: { status: "TERMINATED" },
+  });
+}
+
+export async function getAllEmployees() {
+  return prisma.employee.findMany({
+    include: {
+      department: { select: { dep_name: true } },
+      role: { select: { role_name: true } },
+    },
+  });
+}
+
+export async function addDepartment(dep_name: string) {
+  return prisma.department.create({ data: { dep_name } });
+}
+
+export async function addRole(data: {
+  role_name: string;
+  total_ctc: number;
+  base_salary: number;
+  bonus: number;
+  allowance: number;
+}) {
+  return prisma.role.create({
+    data: {
+      role_name: data.role_name,
+      total_ctc: data.total_ctc,
+      base_salary: data.base_salary,
+      bonus: data.bonus,
+      allowance: data.allowance,
+      tax_id: 0,
+    },
+  });
+}
+
+export async function getHRUser(email: string) {
+  return prisma.employee.findUnique({
+    where: { email },
+    select: { emp_id: true },
+  });
+}

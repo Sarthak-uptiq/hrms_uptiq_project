@@ -25,7 +25,7 @@ export type GetEmpSchemaType = z.infer<typeof GetEmpInputSchema>;
 
 export const UpdateEmpStatus = z.object({
   statusToUpdate: z.enum(["EMP_STATUS", "POLICY"]),
-  status_flag: z.enum(["ACTIVE", "INACTIVE", "TERMINATED", "ACK", "NOT_ACK"]),
+  status_flag: z.enum(["ACTIVE", "INACTIVE", "ACK", "NOT_ACK"]),
   email: z.email(),
 });
 

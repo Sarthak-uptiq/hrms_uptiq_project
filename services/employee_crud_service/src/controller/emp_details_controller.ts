@@ -3,14 +3,14 @@ import type {
   GetEmpSchemaType,
   UpdateEmpStatusType,
 } from "../scehma/details.schema.ts";
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import {
   getEmpDetails,
   updateEmpDetails,
   updateAckFlag,
 } from "../repository/emp_details_repository.ts";
 
-export const getAllDetails = async (req: Request, res: Response) => {
+export const getAllDetails = async (req: Request, res: Response, next: NextFunction) => {
   const body: GetEmpSchemaType = req.body as GetEmpSchemaType;
 
   if (!body.email) {
@@ -30,11 +30,11 @@ export const getAllDetails = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log(`Error: ${error}`);
-    return res.status(500).json("server erorr");
+    next(error);
   }
 };
 
-export const updateDetails = async (req: Request, res: Response) => {
+export const updateDetails = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const body: UpdateEmpSchemaType = req.body as UpdateEmpSchemaType;
 
@@ -59,15 +59,11 @@ export const updateDetails = async (req: Request, res: Response) => {
       user: user,
     });
   } catch (error) {
-    console.log(`Error: ${error}`);
-    return res.status(404).json({
-      message: "Error",
-      error: error,
-    });
+    next(error);
   }
 };
 
-export const updateFlags = async (req: Request, res: Response) => {
+export const updateFlags = async (req: Request, res: Response, next: NextFunction) => {
   const flag_obj = {
     POLICY: "policy_ack_status",
     EMP_STATUS: "status",
@@ -90,6 +86,6 @@ export const updateFlags = async (req: Request, res: Response) => {
       message: `updated emp status: ${body.statusToUpdate} to ${user}`,
     });
   } catch (error) {
-    return res.status(404).json({ message: `Error ${error}` });
+    next(error);
   }
 };

@@ -20,25 +20,27 @@ enum Emp_Status {
 }
 
 enum Policy_Ack {
-  ACK
-  NOT_ACK 
+  ACKNOWLEDGED
+  PENDING
 }
 
 
 model employee {
-  emp_id   String    @id @default(uuid())
-  name     String
-  email    String @unique
-  city     String?
-  state    String?
-  pincode  String?
-  dep_id   Int
-  role_id  Int
-  status   Emp_Status
+  emp_id    String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  city      String?
+  state     String?
+  pincode   String?
+  dep_id    Int
+  role_id   Int
+  status    Emp_Status
   policy_ack_status Policy_Ack
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
-  //relations
+  // relations
+  department department @relation(fields: [dep_id], references: [dep_id])
+  role       role       @relation(fields: [role_id], references: [role_id])
   documents  emp_docu_mapping[]   // 1 employee → many docs
 }
 
@@ -61,4 +63,25 @@ model emp_docu_mapping {
   doc documents @relation(fields: [doc_id], references: [doc_id])
 
   @@unique([emp_id, doc_id]) // an employee can’t upload the same doc twice
+}
+
+model department {
+  dep_id   Int      @id @default(autoincrement())
+  dep_name String   @unique
+
+  // back relation
+  employees employee[]
+}
+
+model role {
+  role_id     Int     @id @default(autoincrement())
+  role_name   String  @unique
+  total_ctc   Float
+  base_salary Float
+  bonus       Float
+  allowance   Float
+  tax_id      Int     // reference for payroll service
+
+  // back relation
+  employees employee[]
 }
