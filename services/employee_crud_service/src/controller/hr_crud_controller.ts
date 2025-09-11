@@ -43,7 +43,7 @@ export const addEmployeeController = async (req: Request, res: Response, next: N
       dep_id: department.dep_id,
     });
     // Register employee in auth-service with correct role
-    await axios.post("http://localhost:5000/auth/register", {
+    await axios.post("http://localhost:5000/api/auth/register", {
       email: body.email,
       role: role.role_id === 1 ? "HR" : "EMPLOYEE",
       requestingUserId: hrUser.emp_id,
