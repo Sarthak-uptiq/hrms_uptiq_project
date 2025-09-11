@@ -12,13 +12,27 @@ RUN yarn install
 COPY . .
 
 # Generate Prisma client (if you use Prisma)
-RUN npx prisma generate
+RUN yarn run prisma generate
 
 # Build TypeScript to JavaScript
 RUN yarn run build
 
 # Expose port (match what your service uses)
-EXPOSE 3000
+EXPOSE 5000
 
 # Start the service
 CMD ["node", "dist/server.ts"]
+
+# Stage 2: Auth Service
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package.json yarn.lock ./
+RUN yarn add --frozen-lockfile
+
+COPY . .
+
+EXPOSE 4000
+
+CMD ["yarn", "start"]
