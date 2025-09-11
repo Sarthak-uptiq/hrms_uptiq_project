@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { status_flag } from "../utils.ts";
 
 export const UpdateEmpInputSchema = z.object({
   name: z.string().optional(),
@@ -26,7 +25,7 @@ export type GetEmpSchemaType = z.infer<typeof GetEmpInputSchema>;
 
 export const UpdateEmpStatus = z.object({
   statusToUpdate: z.enum(["EMP_STATUS", "POLICY"]),
-  status_flag: z.enum(["ACTIVE", "INACTIVE", "TERMINATE", "ACK", "NOT_ACK"]),
+  status_flag: z.enum(["ACTIVE", "INACTIVE", "TERMINATED", "ACK", "NOT_ACK"]),
   email: z.email(),
 });
 

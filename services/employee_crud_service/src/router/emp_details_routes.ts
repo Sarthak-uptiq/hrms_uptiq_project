@@ -12,7 +12,7 @@ import {
 const empDetailRouter = Router();
 
 empDetailRouter.get(
-  "/get-all-detials",
+  "/get-all-details",
   authenticateRequest,
   validateGetRequest,
   getAllDetails

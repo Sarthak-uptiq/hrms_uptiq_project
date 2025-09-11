@@ -3,7 +3,6 @@ import type {
   UpdateEmpSchemaType,
   GetEmpSchemaType,
 } from "../scehma/details.schema.ts";
-import { UpdateEmpInputSchema } from "../scehma/details.schema.ts";
 
 export const getEmpDetails = async (reqBody: GetEmpSchemaType) => {
   if (reqBody.email) {
