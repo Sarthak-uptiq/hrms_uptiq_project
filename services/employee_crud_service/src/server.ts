@@ -11,10 +11,12 @@ dotenv.config();
 const PORT = process.env.PORT;
 const app = express();
 
-app.use(cors({
+app.use(
+  cors({
     origin: "*",
-    credentials: true
-}));
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
@@ -24,7 +26,6 @@ app.use("/api/emp/detials", empDetailsRouter);
 app.use("/api/emp/docs", empDocsRouter);
 app.use("/api/emp/rag", empRagRouter);
 
-
 app.listen(PORT, () => {
-    console.log("Emp service listening on port: ", PORT);
+  console.log("Emp service listening on port: ", PORT);
 });

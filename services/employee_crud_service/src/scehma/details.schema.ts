@@ -1,18 +1,33 @@
-import {z} from "zod";
+import { z } from "zod";
+import { status_flag } from "../utils.ts";
 
 export const UpdateEmpInputSchema = z.object({
-  name: z.string(),
-  email: z.email(),
-  city: z.string(),
-  state: z.string(),
-  pincode: z.string(),
-}).partial().refine((data) => Object.keys(data).length > 0, {message: "Nothing to be updated"});
+  name: z.string().optional(),
+  email: z.email().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  pincode: z.string().optional(),
+  existingEmail: z.email(),
+});
 
 export type UpdateEmpSchemaType = z.infer<typeof UpdateEmpInputSchema>;
 
-export const GetEmpInputSchema = z.object({
+export const GetEmpInputSchema = z
+  .object({
     email: z.email(),
-    jwt: z.jwt()
-}).partial().refine((data) => Object.keys(data).length > 0, {message: "No credentials provided"});
+    jwt: z.jwt(),
+  })
+  .partial()
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "No credentials provided",
+  });
 
 export type GetEmpSchemaType = z.infer<typeof GetEmpInputSchema>;
+
+export const UpdateEmpStatus = z.object({
+  statusToUpdate: z.enum(["EMP_STATUS", "POLICY"]),
+  status_flag: z.enum(["ACTIVE", "INACTIVE", "TERMINATE", "ACK", "NOT_ACK"]),
+  email: z.email(),
+});
+
+export type UpdateEmpStatusType = z.infer<typeof UpdateEmpStatus>;

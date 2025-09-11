@@ -1,16 +1,16 @@
 import type { Request, Response, NextFunction } from "express";
-import { UpdateEmpInputSchema } from "../scehma/details.schema.ts";
-import type { UpdateEmpSchemaType } from "../scehma/details.schema.ts";
+import { UpdateEmpStatus } from "../scehma/details.schema.ts";
+import type { UpdateEmpStatusType } from "../scehma/details.schema.ts";
 
-export const validateUpdateRequest = (
+export const validateEmpStatus = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const input: UpdateEmpSchemaType = req.body;
+    const input: UpdateEmpStatusType = req.body;
 
-    UpdateEmpInputSchema.safeParse(input);
+    UpdateEmpStatus.safeParse(input);
     console.log("Update input success");
     next();
   } catch (error) {
