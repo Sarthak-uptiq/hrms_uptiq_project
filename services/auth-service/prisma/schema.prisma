@@ -17,14 +17,13 @@ enum AuthRole {
   ADMIN
   HR 
   EMPLOYEE 
-  CANDIDATE
 }
 
 model User {
   id Int @id @default(autoincrement())
   user_id String @unique
   email String @unique
-  password String @unique
+  password String
   authrole AuthRole
   createdAt DateTime @default(now())
 

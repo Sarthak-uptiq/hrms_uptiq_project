@@ -33,7 +33,7 @@ const generatePassword = (): string => {
     symbols: true,
     uppercase: true,
     lowercase: true,
-    excludeSimilarCharacters: true, // Avoids characters like 'l', 'I', '1', 'o', 'O', '0'
+    excludeSimilarCharacters: true, 
 });
 }
 

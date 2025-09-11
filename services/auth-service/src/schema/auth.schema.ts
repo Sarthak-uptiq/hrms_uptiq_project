@@ -13,6 +13,6 @@ export const RegisterSchema = z.object({
     role: z.enum(["HR", "EMPLOYEE"]),
     requestingUserId: z.string(),
     requestingUserRole: z.enum(["HR"])
-});
+}).strict();
 
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>;
