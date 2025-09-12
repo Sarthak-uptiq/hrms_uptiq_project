@@ -1,9 +1,19 @@
 import express from 'express';
+import cors from 'cors';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import type { Request, Response } from 'express';
 
 const app = express();
 const PORT = 3000;
+
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+  ],
+  credentials: true,
+}));
 
 // Proxy /api/auth/* to auth-service
 app.use('/api/auth', createProxyMiddleware({

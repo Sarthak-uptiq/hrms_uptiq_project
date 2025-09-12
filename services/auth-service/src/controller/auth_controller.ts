@@ -81,6 +81,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 export const login = async (req: Request, res: Response, next: NextFunction) => {
     try{
         const body = req.body as UserInput;
+        console.log("body", body);
 
         const userExists = await findExistingUser(body.email);
 
@@ -91,7 +92,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             });
         } 
 
-        const isPasssWordCorrect = await bcrypt.compare(body.password, userExists.password);
+        const isPasssWordCorrect = (body.password === userExists.password);
 
         if(!isPasssWordCorrect){
             return res.status(401).json({message: "Password Incorrect!!"});
@@ -107,8 +108,13 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             role: userExists.authrole
         });
 
+        console.log("user presnet");
         res.cookie("auth_token", token, { httpOnly: true, sameSite: "lax", maxAge: Number(EXPIRY)});
-        return res.status(201).json({message: "User logged in successfully"});
+        return res.status(201).json({message: "User logged in successfully", user: {
+            email: userExists.email,
+            role: userExists.authrole,
+            user_id: userExists.user_id
+        }});
 
     } catch(error){
         console.log(`Error in login: ${error}`);
@@ -133,7 +139,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
             role: decoded.role
         }; 
 
-        return res.status(200).json({message: `Token verified returning user: ${user}`});
+        return res.status(200).json({ user: user });
 
     } catch(error){
         console.log("Error in decoding token :", error);

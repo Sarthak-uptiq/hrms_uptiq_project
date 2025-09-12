@@ -8,7 +8,7 @@ export const validateGetRequest = (
   next: NextFunction
 ) => {
   try {
-    const input: GetEmpSchemaType = req.body;
+    const input: GetEmpSchemaType = (req.method === 'GET' ? (req.query as any) : req.body) as GetEmpSchemaType;
 
     GetEmpInputSchema.safeParse(input);
     console.log("Get input success");
