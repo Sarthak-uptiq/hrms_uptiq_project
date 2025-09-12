@@ -92,7 +92,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             });
         } 
 
-        const isPasssWordCorrect = (body.password === userExists.password);
+        const isPasssWordCorrect = await bcrypt.compare(body.password, userExists.password);
 
         if(!isPasssWordCorrect){
             return res.status(401).json({message: "Password Incorrect!!"});

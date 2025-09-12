@@ -1,38 +1,55 @@
-# Stage 1: Build
-FROM node:18-alpine AS builder
+# --- Stage 1: Build Environment ---
+# Use a Node.js image that matches your development environment.
+FROM node:20-alpine AS builder
 
-# Set working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Install dependencies first (better caching)
-COPY package*.json ./
-RUN yarn install
+# Install Prisma CLI globally in the build stage to ensure it's available
+RUN npm install -g prisma
 
-# Copy rest of the code
+# Copy package.json and yarn.lock to leverage Docker caching
+# Using yarn.lock indicates a Yarn project
+COPY package.json yarn.lock* ./
+
+# Install all dependencies using the lockfile
+# This is the corrected command
+RUN yarn install --frozen-lockfile
+
+# Copy the Prisma schema file
+COPY prisma ./prisma/
+
+# Generate the Prisma client. This is crucial for your application to talk to the database.
+RUN prisma generate
+
+# Copy the rest of your application's source code
 COPY . .
 
-# Generate Prisma client (if you use Prisma)
-RUN yarn run prisma generate
+# Compile TypeScript to JavaScript using the build script from package.json
+RUN yarn build
 
-# Build TypeScript to JavaScript
-RUN yarn run build
+# --- Stage 2: Production Environment ---
+# Use a slim Node.js image for a smaller and more secure final image
+FROM node:20-alpine
 
-# Expose port (match what your service uses)
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and yarn.lock again
+COPY package.json yarn.lock* ./
+
+# Install only production dependencies
+RUN yarn install --production --frozen-lockfile
+
+# Copy the compiled code from the 'builder' stage
+COPY --from=builder /app/dist ./dist
+
+# Copy the Prisma schema for the runtime environment
+COPY --from=builder /app/prisma ./prisma
+
+# Expose the port your application will run on. Assuming it's 5000.
 EXPOSE 5000
 
-# Start the service
-CMD ["node", "dist/server.ts"]
-
-# Stage 2: Auth Service
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY package.json yarn.lock ./
-RUN yarn add --frozen-lockfile
-
-COPY . .
-
-EXPOSE 4000
-
+# The command to start your application, using the script from package.json
 CMD ["yarn", "start"]
+

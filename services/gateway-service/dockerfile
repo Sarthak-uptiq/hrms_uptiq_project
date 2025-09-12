@@ -1,7 +1,40 @@
-FROM node:18-alpine
+# --- Stage 1: Build Environment ---
+# Use a Node.js image that matches your development environment.
+FROM node:20-alpine AS builder
+
+# Set the working directory inside the container
 WORKDIR /app
-COPY package.json yarn.lock ./
-RUN yarn add --frozen-lockfile
+
+# Copy package.json and yarn.lock to leverage Docker caching
+COPY package.json yarn.lock* ./
+
+# Install all dependencies using the lockfile
+RUN yarn install --frozen-lockfile
+
+# Copy the rest of your application's source code
 COPY . .
+
+# Compile TypeScript to JavaScript using the build script from package.json
+RUN yarn build
+
+# --- Stage 2: Production Environment ---
+# Use a slim Node.js image for a smaller and more secure final image
+FROM node:20-alpine
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and yarn.lock again
+COPY package.json yarn.lock* ./
+
+# Install only production dependencies
+RUN yarn install --production --frozen-lockfile
+
+# Copy the compiled code from the 'builder' stage
+COPY --from=builder /app/dist ./dist
+
+# Expose the port your gateway will run on.
 EXPOSE 3000
+
+# The command to start your application, using the script from package.json
 CMD ["yarn", "start"]

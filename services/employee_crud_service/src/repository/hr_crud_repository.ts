@@ -51,7 +51,7 @@ export async function getAllEmployees() {
   return prisma.employee.findMany({
     include: {
       department: { select: { dep_name: true } },
-      role: { select: { role_name: true } },
+      role: { select: { role_name: true, total_ctc: true, base_salary: true, bonus: true, allowance: true } },
     },
   });
 }
