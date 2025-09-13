@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import type { JwtPayload } from 'jsonwebtoken';
 import type{Request, Response, NextFunction} from "express";
 import type{ UserInput, RegisterSchemaType } from "../schema/auth.schema.ts";
-import {createUser, findExistingUser } from "../repository/repository.ts";
+import {createUser, findByUserID, findExistingUser } from "../repository/repository.ts";
 import bcrypt from "bcrypt";
 import {v5 as uuidv5} from "uuid";
 import fs from "fs";
@@ -67,8 +67,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
             return res.status(401).json({message: "JWT payload not found"});
         }
 
-
-        const requestingUser = await findExistingUser(decoded.email);
+        const requestingUser = await findByUserID(decoded.id);
 
         if(!requestingUser){
             return res.status(404).json({message: "Reqesting user does not exist"});

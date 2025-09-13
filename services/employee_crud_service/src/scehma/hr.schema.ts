@@ -3,11 +3,11 @@ import { z } from "zod";
 export const addEmployeeSchema = z.object({
   name: z.string().min(1),
   email: z.email(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  pincode: z.string().optional(),
-  role_name: z.string().min(1),
-  dep_name: z.string().min(1),
+  city: z.string(),
+  state: z.string(),
+  pincode: z.string(),
+  role_id: z.number().positive(),
+  dep_id: z.number().positive(),
 });
 
 export type addEmployeeSchemaType = z.infer<typeof addEmployeeSchema>;
@@ -34,3 +34,19 @@ export const addRoleSchema = z.object({
 });
 
 export type addRoleSchemaType = z.infer<typeof addRoleSchema>;
+
+export const editRoleSchema = z.object({
+  role_name: z.string().min(1).optional(),
+  total_ctc: z.number().positive().optional(),
+  base_salary: z.number().positive().optional(),
+  bonus: z.number().nonnegative().optional(),
+  allowance: z.number().nonnegative().optional(),
+});
+
+export type editRoleSchemaType = z.infer<typeof editRoleSchema>;
+
+export const editDepartmentSchema = z.object({
+  dep_name: z.string().min(1),
+});
+
+export type editDepartmentSchemaType = z.infer<typeof editDepartmentSchema>;

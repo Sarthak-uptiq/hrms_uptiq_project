@@ -1,5 +1,4 @@
 import type {
-  UpdateEmpSchemaType,
   UpdateEmpStatusType,
 } from "../scehma/details.schema.ts";
 import type { Request, Response, NextFunction } from "express";
@@ -8,25 +7,13 @@ import {
   updateEmpDetails,
   updateAckFlag,
 } from "../repository/emp_details_repository.ts";
-import jwt from "jsonwebtoken";
-import {publicKey} from "../utils.ts";
 
-const getEmailFromToken = (req: Request): string | null => {
-  const token = req.cookies.auth_token;
-
-  if(!token){
-    return null;
-  }
-
-  const decoded: jwt.JwtPayload = jwt.verify(token, publicKey) as jwt.JwtPayload;
-  
-  return decoded.email;
-}
+import type { addEmployeeSchemaType } from "../scehma/hr.schema.ts";
 
 export const getAllDetails = async (req: Request, res: Response, next: NextFunction) => {
 
   try {
-    const email = getEmailFromToken(req);
+    const email =req.userEmail;
   
     if(!email){
       return res.status(401).json("Unauthorized: No token provided");
@@ -50,25 +37,15 @@ export const getAllDetails = async (req: Request, res: Response, next: NextFunct
 
 export const updateDetails = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const body: UpdateEmpSchemaType = req.body as UpdateEmpSchemaType;
+    const body = req.body as Partial<addEmployeeSchemaType>;
 
-    const email = getEmailFromToken(req);
-  
+    const email = req.userEmail;
+
     if(!email){
       return res.status(401).json("Unauthorized: No token provided");
     } 
-    const providedUpdates: Record<string, string> = {};
 
-    Object.entries(body).forEach(([key, value]) => {
-      if (value !== undefined)
-        providedUpdates[key] = value;
-    });
-
-    if (!providedUpdates || providedUpdates === undefined) {
-      return res.status(409).json({ meesage: "Noting to update" });
-    }
-
-    const user = await updateEmpDetails(email, providedUpdates);
+    const user = await updateEmpDetails(email, body);
 
     console.log("User updated successfully", user);
 
@@ -90,7 +67,7 @@ export const updateFlags = async (req: Request, res: Response, next: NextFunctio
   try {
     const body: UpdateEmpStatusType = req.body as UpdateEmpStatusType;
 
-    const email = getEmailFromToken(req);
+    const email = req.userEmail;
   
     if(!email){
       return res.status(401).json("Unauthorized: No token provided");

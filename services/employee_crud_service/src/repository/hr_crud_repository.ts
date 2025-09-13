@@ -1,4 +1,5 @@
-import { prisma } from "../utils.ts";
+import { editDepartmentSchema, editRoleSchema, type editDepartmentSchemaType, type editRoleSchemaType } from "../scehma/hr.schema.ts";
+import { prisma } from "../utils/utils.ts";
 
 export async function isHR(email: string) {
   const hr = await prisma.employee.findUnique({
@@ -8,12 +9,12 @@ export async function isHR(email: string) {
   return hr && hr.role_id === 1;
 }
 
-export async function getRoleByName(role_name: string) {
-  return prisma.role.findUnique({ where: { role_name } });
+export async function getRoleById(role_id: number) {
+  return prisma.role.findUnique({ where: { role_id } });
 }
 
-export async function getDepartmentByName(dep_name: string) {
-  return prisma.department.findUnique({ where: { dep_name } });
+export async function getDepartmentById(dep_id: number) {
+  return prisma.department.findUnique({ where: { dep_id } });
 }
 
 export async function addEmployee(data: {
@@ -82,5 +83,43 @@ export async function getHRUser(email: string) {
   return prisma.employee.findUnique({
     where: { email },
     select: { emp_id: true },
+  });
+}
+
+
+// write two functions for getting all department and role details
+
+export async function getAllDepartments() {
+  return prisma.department.findMany();
+}
+
+export async function getAllRoles() {
+  return prisma.role.findMany();
+}
+
+export async function getRoleInfo(role_id: number) {
+  return prisma.role.findUnique({
+    where: { role_id },
+  });
+}
+
+export async function editRole(role_id: number, updates: 
+  {
+    role_name?: string;
+    total_ctc?: number;
+    base_salary?: number;
+    bonus?: number;
+    allowance?: number;
+  }) {
+  return prisma.role.update({
+    where: { role_id },
+    data: updates,
+  });
+}
+
+export async function editDepartment(dep_id: number, updates: { dep_name: string }) {
+  return prisma.department.update({
+    where: { dep_id },
+    data: updates,
   });
 }

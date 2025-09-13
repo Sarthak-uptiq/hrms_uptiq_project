@@ -24,3 +24,9 @@ export const findExistingUser = async (email: string) => {
         where: {email}
     });
 }
+
+export async function findByUserID(userId: string) {
+    return prisma.user.findUnique({
+        where: {user_id: userId}
+    })
+}

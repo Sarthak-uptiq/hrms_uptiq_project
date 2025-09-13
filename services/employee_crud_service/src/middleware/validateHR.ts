@@ -4,6 +4,8 @@ import {
   terminateEmployeeSchema,
   addDepartmentSchema,
   addRoleSchema,
+  editRoleSchema,
+  editDepartmentSchema,
 } from "../scehma/hr.schema.ts";
 
 const schemaMap: Record<string, any> = {
@@ -11,6 +13,8 @@ const schemaMap: Record<string, any> = {
   "/hr/terminate-employee": terminateEmployeeSchema,
   "/hr/add-department": addDepartmentSchema,
   "/hr/add-role": addRoleSchema,
+  "/hr/edit-role/:role_id": editRoleSchema,
+  "/hr/edit-department/:dep_id": editDepartmentSchema,
 };
 
 export function validateHR(req: Request, res: Response, next: NextFunction) {

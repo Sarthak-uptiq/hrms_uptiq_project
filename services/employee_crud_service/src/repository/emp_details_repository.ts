@@ -1,4 +1,4 @@
-import { prisma } from "../utils.ts";
+import { prisma } from "../utils/utils.ts";
 import type {
   UpdateEmpSchemaType,
 } from "../scehma/details.schema.ts";
@@ -47,10 +47,10 @@ export const updateAckFlag = async (
 
 export const updateEmpDetails = async (
   email: string,
-  providedUpdates: { [k: string]: string }
+  updates: Partial<{ name?: string; city?: string; state?: string; pincode?: string; }>
 ) => {
   return prisma.employee.update({
     where: { email },
-    data: providedUpdates,
+    data: updates,
   });
 };

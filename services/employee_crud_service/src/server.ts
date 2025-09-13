@@ -1,6 +1,5 @@
 import express from "express";
 import dotenv from "dotenv";
-import cors from "cors";
 import cookieParser from "cookie-parser";
 import empDetailsRouter from "./router/emp_details_routes.ts";
 import empDocsRouter from "./router/emp_docs_routes.ts";
@@ -11,17 +10,6 @@ dotenv.config();
 
 const PORT = process.env.PORT;
 const app = express();
-
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "http://localhost:5175",
-    ],
-    credentials: true,
-  })
-);
 
 app.use(express.json());
 

@@ -1,40 +1,33 @@
 import type { Request, Response, NextFunction } from "express";
 import axios from "axios";
-import jwt from "jsonwebtoken";
 import type {
   addDepartmentSchemaType,
   addEmployeeSchemaType,
   addRoleSchemaType,
   terminateEmployeeSchemaType,
 } from "../scehma/hr.schema.ts";
+import { editDepartmentSchema, editRoleSchema } from "../scehma/hr.schema.ts";
 import {
   isHR,
-  getRoleByName,
-  getDepartmentByName,
+  getRoleById,
+  getDepartmentById,
   addEmployee,
   terminateEmployee,
   getAllEmployees,
   addDepartment,
   addRole,
   getHRUser,
+  getAllDepartments,
+  getAllRoles,
+  editRole,
+  editDepartment,
 } from "../repository/hr_crud_repository.ts";
-import {publicKey} from "../utils.ts";
-
-const getHREMail = (token: string): string | null => {
-  const decoded: jwt.JwtPayload = jwt.verify(token, publicKey) as jwt.JwtPayload;
-
-  if(!decoded){
-    return null;
-  }
-
-  return decoded.email;
-}
 
 export const addEmployeeController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const body: addEmployeeSchemaType = req.body as addEmployeeSchemaType;
 
-    const hr_email = getHREMail(req.cookies.auth_token);
+    const hr_email = req.userEmail;
 
     if(!hr_email){
       return res.status(403).json({ message: "Unauthorized: Not HR" });
@@ -43,8 +36,11 @@ export const addEmployeeController = async (req: Request, res: Response, next: N
     if (!(await isHR(hr_email))) {
       return res.status(403).json({ message: "Unauthorized: Not HR" });
     }
-    const role = await getRoleByName(body.role_name);
-    const department = await getDepartmentByName(body.dep_name);
+
+    console.log(body.role_id, body.dep_id);
+
+    const role = await getRoleById(body.role_id);
+    const department = await getDepartmentById(body.dep_id);
     if (!role || !department) {
       return res.status(404).json({ message: "Role or Department not found" });
     }
@@ -62,7 +58,7 @@ export const addEmployeeController = async (req: Request, res: Response, next: N
       dep_id: department.dep_id,
     });
 
-    await axios.post("http://localhost:5000/api/auth/register", {
+    await axios.post("http://localhost:3000/api/auth/register", {
       email: body.email,
       role: role.role_id === 1 ? "HR" : "EMPLOYEE",
     }, {
@@ -80,7 +76,7 @@ export const terminateEmployeeController = async (req: Request, res: Response, n
   try {
     const body: terminateEmployeeSchemaType = req.body as terminateEmployeeSchemaType;
 
-    const hr_email = getHREMail(req.cookies.auth_token);
+    const hr_email = req.userEmail;
 
     if(!hr_email){
       return res.status(403).json({ message: "Unauthorized: Not HR" });
@@ -107,9 +103,9 @@ export const getAllEmployeesController = async (req: Request, res: Response, nex
 
 export const addDepartmentController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const body: addEmployeeSchemaType = req.body as addEmployeeSchemaType;
+    const body: addDepartmentSchemaType = req.body as addDepartmentSchemaType;
 
-    const hr_email = getHREMail(req.cookies.auth_token);
+    const hr_email = req.userEmail;
 
     if(!hr_email){
       return res.status(403).json({ message: "Unauthorized: Not HR" });
@@ -129,7 +125,7 @@ export const addRoleController = async (req: Request, res: Response, next: NextF
   try {
     const body: addRoleSchemaType = req.body as addRoleSchemaType;
 
-    const hr_email = getHREMail(req.cookies.auth_token);
+    const hr_email = req.userEmail;
 
     if(!hr_email){
       return res.status(403).json({ message: "Unauthorized: Not HR" });
@@ -147,6 +143,94 @@ export const addRoleController = async (req: Request, res: Response, next: NextF
       allowance: body.allowance,
     });
     return res.status(201).json({ message: "Role added", role });
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+export const getAllDepartmentsController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const departments = await getAllDepartments();
+    return res.status(200).json({ departments });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getAllRolesController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const roles = await getAllRoles();
+    return res.status(200).json({ roles });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getRoleInfoController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const role_id = parseInt(req.params.role_id!);
+    if (isNaN(role_id)) {
+      return res.status(400).json({ message: "Invalid role ID" });
+    }
+
+    const role = await getRoleById(role_id);
+    if (!role) {
+      return res.status(404).json({ message: "Role not found" });
+    }
+    return res.status(200).json({ role });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export const editRoleController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const role_id = parseInt(req.params.role_id!);
+    if (isNaN(role_id)) {
+      return res.status(400).json({ message: "Invalid role ID" });
+    }
+
+    const updates = req.body as Partial<addRoleSchemaType>;
+
+    const hr_email = req.userEmail;
+
+    if(!hr_email){
+      return res.status(403).json({ message: "Unauthorized: Not HR" });
+    }
+
+    if (!(await isHR(hr_email))) {
+      return res.status(403).json({ message: "Unauthorized: Not HR" });
+    }
+
+    const role = await editRole(role_id, updates);
+    return res.status(200).json({ message: "Role updated", role });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const editDepartmentController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const dep_id = parseInt(req.params.dep_id!);
+    if (isNaN(dep_id)) {
+      return res.status(400).json({ message: "Invalid department ID" });
+    }
+
+    const updates = editDepartmentSchema.parse(req.body);
+
+    const hr_email = req.userEmail;
+
+    if(!hr_email){
+      return res.status(403).json({ message: "Unauthorized: Not HR" });
+    }
+
+    if (!(await isHR(hr_email))) {
+      return res.status(403).json({ message: "Unauthorized: Not HR" });
+    }
+
+    const department = await editDepartment(dep_id, updates);
+    return res.status(200).json({ message: "Department updated", department });
   } catch (err) {
     next(err);
   }
