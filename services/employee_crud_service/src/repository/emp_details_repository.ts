@@ -1,13 +1,10 @@
 import { prisma } from "../utils.ts";
 import type {
   UpdateEmpSchemaType,
-  GetEmpSchemaType,
 } from "../scehma/details.schema.ts";
 
-export const getEmpDetails = async (reqBody: GetEmpSchemaType) => {
-  if (reqBody.email) {
-    const email = reqBody.email;
-    return prisma.employee.findUnique({
+export const getEmpDetails = async (email: string) => {
+  return prisma.employee.findUnique({
       where: { email },
       select: {
         name: true,
@@ -33,9 +30,6 @@ export const getEmpDetails = async (reqBody: GetEmpSchemaType) => {
         },
       },
     });
-  }
-
-  return null;
 };
 
 export const updateAckFlag = async (

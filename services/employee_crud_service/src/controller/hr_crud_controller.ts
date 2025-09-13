@@ -1,10 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 import axios from "axios";
-import {
-  addEmployeeSchema,
-  terminateEmployeeSchema,
-  addDepartmentSchema,
-  addRoleSchema,
+import jwt from "jsonwebtoken";
+import type {
+  addDepartmentSchemaType,
+  addEmployeeSchemaType,
+  addRoleSchemaType,
+  terminateEmployeeSchemaType,
 } from "../scehma/hr.schema.ts";
 import {
   isHR,
@@ -17,11 +18,29 @@ import {
   addRole,
   getHRUser,
 } from "../repository/hr_crud_repository.ts";
+import {publicKey} from "../utils.ts";
+
+const getHREMail = (token: string): string | null => {
+  const decoded: jwt.JwtPayload = jwt.verify(token, publicKey) as jwt.JwtPayload;
+
+  if(!decoded){
+    return null;
+  }
+
+  return decoded.email;
+}
 
 export const addEmployeeController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const body = addEmployeeSchema.parse(req.body);
-    if (!(await isHR(body.hr_email))) {
+    const body: addEmployeeSchemaType = req.body as addEmployeeSchemaType;
+
+    const hr_email = getHREMail(req.cookies.auth_token);
+
+    if(!hr_email){
+      return res.status(403).json({ message: "Unauthorized: Not HR" });
+    }
+
+    if (!(await isHR(hr_email))) {
       return res.status(403).json({ message: "Unauthorized: Not HR" });
     }
     const role = await getRoleByName(body.role_name);
@@ -29,7 +48,7 @@ export const addEmployeeController = async (req: Request, res: Response, next: N
     if (!role || !department) {
       return res.status(404).json({ message: "Role or Department not found" });
     }
-    const hrUser = await getHRUser(body.hr_email);
+    const hrUser = await getHRUser(hr_email);
     if (!hrUser) {
       return res.status(404).json({ message: "HR user not found" });
     }
@@ -42,12 +61,14 @@ export const addEmployeeController = async (req: Request, res: Response, next: N
       role_id: role.role_id,
       dep_id: department.dep_id,
     });
-    // Register employee in auth-service with correct role
+
     await axios.post("http://localhost:5000/api/auth/register", {
       email: body.email,
       role: role.role_id === 1 ? "HR" : "EMPLOYEE",
-      requestingUserId: hrUser.emp_id,
-      requestingUserRole: "HR",
+    }, {
+      headers: {
+        Authorization: `Bearer ${req.cookies.auth_token}`,
+      }
     });
     return res.status(201).json({ message: "Employee added", employee });
   } catch (err) {
@@ -57,8 +78,15 @@ export const addEmployeeController = async (req: Request, res: Response, next: N
 
 export const terminateEmployeeController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const body = terminateEmployeeSchema.parse(req.body);
-    if (!(await isHR(body.hr_email))) {
+    const body: terminateEmployeeSchemaType = req.body as terminateEmployeeSchemaType;
+
+    const hr_email = getHREMail(req.cookies.auth_token);
+
+    if(!hr_email){
+      return res.status(403).json({ message: "Unauthorized: Not HR" });
+    }
+
+    if (!(await isHR(hr_email))) {
       return res.status(403).json({ message: "Unauthorized: Not HR" });
     }
     const employee = await terminateEmployee(body.email);
@@ -79,8 +107,15 @@ export const getAllEmployeesController = async (req: Request, res: Response, nex
 
 export const addDepartmentController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const body = addDepartmentSchema.parse(req.body);
-    if (!(await isHR(body.hr_email))) {
+    const body: addEmployeeSchemaType = req.body as addEmployeeSchemaType;
+
+    const hr_email = getHREMail(req.cookies.auth_token);
+
+    if(!hr_email){
+      return res.status(403).json({ message: "Unauthorized: Not HR" });
+    }
+
+    if (!(await isHR(hr_email))) {
       return res.status(403).json({ message: "Unauthorized: Not HR" });
     }
     const department = await addDepartment(body.dep_name);
@@ -92,8 +127,16 @@ export const addDepartmentController = async (req: Request, res: Response, next:
 
 export const addRoleController = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const body = addRoleSchema.parse(req.body);
-    if (!(await isHR(body.hr_email))) {
+    const body: addRoleSchemaType = req.body as addRoleSchemaType;
+
+    const hr_email = getHREMail(req.cookies.auth_token);
+
+    if(!hr_email){
+      return res.status(403).json({ message: "Unauthorized: Not HR" });
+    }
+
+
+    if (!(await isHR(hr_email))) {
       return res.status(403).json({ message: "Unauthorized: Not HR" });
     }
     const role = await addRole({

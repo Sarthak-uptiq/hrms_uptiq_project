@@ -74,7 +74,6 @@ export async function addRole(data: {
       base_salary: data.base_salary,
       bonus: data.bonus,
       allowance: data.allowance,
-      tax_id: 0,
     },
   });
 }

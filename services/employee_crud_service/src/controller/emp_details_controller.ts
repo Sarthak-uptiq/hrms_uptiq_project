@@ -1,6 +1,5 @@
 import type {
   UpdateEmpSchemaType,
-  GetEmpSchemaType,
   UpdateEmpStatusType,
 } from "../scehma/details.schema.ts";
 import type { Request, Response, NextFunction } from "express";
@@ -9,16 +8,31 @@ import {
   updateEmpDetails,
   updateAckFlag,
 } from "../repository/emp_details_repository.ts";
+import jwt from "jsonwebtoken";
+import {publicKey} from "../utils.ts";
 
-export const getAllDetails = async (req: Request, res: Response, next: NextFunction) => {
-  const body: GetEmpSchemaType = req.body as GetEmpSchemaType;
+const getEmailFromToken = (req: Request): string | null => {
+  const token = req.cookies.auth_token;
 
-  if (!body.email) {
-    return res.status(404).json("No input provided");
+  if(!token){
+    return null;
   }
 
+  const decoded: jwt.JwtPayload = jwt.verify(token, publicKey) as jwt.JwtPayload;
+  
+  return decoded.email;
+}
+
+export const getAllDetails = async (req: Request, res: Response, next: NextFunction) => {
+
   try {
-    const user = await getEmpDetails(body);
+    const email = getEmailFromToken(req);
+  
+    if(!email){
+      return res.status(401).json("Unauthorized: No token provided");
+    }
+
+    const user = await getEmpDetails(email);
 
     if (!user) {
       return res.status(404).json("No user found");
@@ -38,11 +52,15 @@ export const updateDetails = async (req: Request, res: Response, next: NextFunct
   try {
     const body: UpdateEmpSchemaType = req.body as UpdateEmpSchemaType;
 
-    const email: string = body.existingEmail;
+    const email = getEmailFromToken(req);
+  
+    if(!email){
+      return res.status(401).json("Unauthorized: No token provided");
+    } 
     const providedUpdates: Record<string, string> = {};
 
     Object.entries(body).forEach(([key, value]) => {
-      if (key !== "existingEmail" && value !== undefined)
+      if (value !== undefined)
         providedUpdates[key] = value;
     });
 
@@ -72,6 +90,12 @@ export const updateFlags = async (req: Request, res: Response, next: NextFunctio
   try {
     const body: UpdateEmpStatusType = req.body as UpdateEmpStatusType;
 
+    const email = getEmailFromToken(req);
+  
+    if(!email){
+      return res.status(401).json("Unauthorized: No token provided");
+    }
+
     if (!body) {
       return res.status(404).json("No body found");
     }
@@ -79,7 +103,7 @@ export const updateFlags = async (req: Request, res: Response, next: NextFunctio
     const user = await updateAckFlag(
       flag_obj[body.statusToUpdate],
       body.status_flag,
-      body.email
+      email
     );
 
     return res.status(200).json({

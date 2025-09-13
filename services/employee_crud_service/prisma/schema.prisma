@@ -80,7 +80,6 @@ model role {
   base_salary Float
   bonus       Float
   allowance   Float
-  tax_id      Int     // reference for payroll service
 
   // back relation
   employees employee[]
