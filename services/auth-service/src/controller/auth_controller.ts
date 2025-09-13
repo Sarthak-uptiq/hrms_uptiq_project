@@ -1,14 +1,15 @@
 import jwt from 'jsonwebtoken';
+import type { JwtPayload } from 'jsonwebtoken';
 import type{Request, Response, NextFunction} from "express";
 import type{ UserInput, RegisterSchemaType } from "../schema/auth.schema.ts";
-import {createUser, findExistingUser, findUserByID } from "../repository/repository.ts";
+import {createUser, findExistingUser } from "../repository/repository.ts";
 import bcrypt from "bcrypt";
 import {v5 as uuidv5} from "uuid";
+import fs from "fs";
 import generator from 'generate-password';
 
-
-const JWT_SECRET_KEY: string  = process.env.SECRET_KEY!;
 const EXPIRY: string = process.env.TOKEN_EXPIRY!;
+const privateKey = fs.readFileSync("private.pem", "utf-8");
 
 type UserData = {
   id: string;
@@ -23,7 +24,12 @@ const generateToken = ({ id, email, role }: UserData): string => {
         email: email,
         role: role
     }
-    return jwt.sign( payload, JWT_SECRET_KEY, {expiresIn: Number(EXPIRY)});
+    return jwt.sign( payload, 
+        privateKey,  
+        {
+        algorithm: "RS256", 
+        expiresIn: "1h",
+        });
 };
 
 const generatePassword = (): string => {
@@ -49,7 +55,20 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
             });
         }
 
-        const requestingUser = await findUserByID(body.requestingUserId);
+        const jwtToken = req.cookies.auth_token;
+
+        if(!jwtToken){
+            return res.status(401).json({message: "auth token not found"});
+        }
+
+        const decoded: JwtPayload = jwt.verify(jwtToken, privateKey) as JwtPayload;
+
+        if(!decoded){
+            return res.status(401).json({message: "JWT payload not found"});
+        }
+
+
+        const requestingUser = await findExistingUser(decoded.email);
 
         if(!requestingUser){
             return res.status(404).json({message: "Reqesting user does not exist"});
@@ -92,7 +111,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             });
         } 
 
-        const isPasssWordCorrect = await bcrypt.compare(body.password, userExists.password);
+        const isPasssWordCorrect = (body.password === userExists.password);
 
         if(!isPasssWordCorrect){
             return res.status(401).json({message: "Password Incorrect!!"});
@@ -131,7 +150,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 
     try{
 
-        const decoded: jwt.JwtPayload = jwt.verify(token, JWT_SECRET_KEY) as jwt.JwtPayload;
+        const decoded: jwt.JwtPayload = jwt.verify(token, privateKey) as jwt.JwtPayload;
 
         const user: UserData = {
             email: decoded.email, 

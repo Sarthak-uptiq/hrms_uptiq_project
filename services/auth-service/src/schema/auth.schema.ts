@@ -10,9 +10,7 @@ export type UserInput = z.infer<typeof UserSchema>;
 
 export const RegisterSchema = z.object({
     email: z.email(),
-    role: z.enum(["HR", "EMPLOYEE"]),
-    requestingUserId: z.string(),
-    requestingUserRole: z.enum(["HR"])
+    role: z.enum(["HR", "EMPLOYEE"])
 }).strict();
 
 export type RegisterSchemaType = z.infer<typeof RegisterSchema>;

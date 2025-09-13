@@ -2,7 +2,7 @@ import type{ Request, Response, NextFunction } from "express";
 import type{ UserInput, RegisterSchemaType } from "../schema/auth.schema.ts";
 import { UserSchema, RegisterSchema } from "../schema/auth.schema.ts";
 
-export const validateRequest = (req: Request, res: Response, next: NextFunction) => {
+export const validateSchema = (req: Request, res: Response, next: NextFunction) => {
 
     try {
         const input: UserInput = req.body;
@@ -20,7 +20,7 @@ export const validateRequest = (req: Request, res: Response, next: NextFunction)
     }
 }
 
-export const validateRegisterRequest = (req: Request, res: Response, next: NextFunction) => {
+export const validateRegisterSchema= (req: Request, res: Response, next: NextFunction) => {
 
     try {
         const input: RegisterSchemaType = req.body;
