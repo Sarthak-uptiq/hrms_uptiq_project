@@ -4,7 +4,6 @@ import type{Request, Response, NextFunction} from "express";
 import type{ UserInput, RegisterSchemaType } from "../schema/auth.schema.ts";
 import {createUser, findByUserID, findExistingUser } from "../repository/repository.ts";
 import bcrypt from "bcrypt";
-import {v5 as uuidv5} from "uuid";
 import fs from "fs";
 import generator from 'generate-password';
 
@@ -77,18 +76,8 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
             return res.status(404).json({message: "Request Denied: Unauthorized"});
         }
 
-        const NAMESPACE = uuidv5.DNS;
-        const uuid = uuidv5(body.email, NAMESPACE);
+        const user = await createUser(body, generatePassword());
 
-        const user = await createUser(body, uuid, generatePassword());
-
-        const token = generateToken({
-            id: user.user_id,
-            email: user.email,
-            role: user.authrole
-        });
-
-        res.cookie("auth_token", token, { httpOnly: true, sameSite: "lax", maxAge: Number(EXPIRY)});
         return res.status(201).json({message: "User Created successfully"});
     } catch(error){
         console.log(`Error in registering user: ${error}`);

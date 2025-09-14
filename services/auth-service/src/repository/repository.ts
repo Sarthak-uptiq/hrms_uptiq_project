@@ -4,7 +4,7 @@ import type{ RegisterSchemaType } from "../schema/auth.schema.ts";
 
 const prisma = new PrismaClient();
 
-export const createUser = async (user: RegisterSchemaType, uid: string, password: string) => {
+export const createUser = async (user: RegisterSchemaType, password: string) => {
     console.log(password);
     const hashedPass = await bcrypt.hash(password, 10);
     console.log("in create user");
@@ -13,7 +13,7 @@ export const createUser = async (user: RegisterSchemaType, uid: string, password
                 email: user.email,
                 password: hashedPass,
                 authrole: user.role,
-                user_id: uid
+                user_id: user.role_id
             }
         });
 }

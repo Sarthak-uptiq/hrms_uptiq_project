@@ -11,7 +11,6 @@ export const validateHRRequests = (req: Request, res: Response, next: NextFuncti
     return res.status(400).json({ error: "Invalid Authorization header format" });
   }
 
-  console.log(parts);
   const token = parts[1]; 
   req.cookies.auth_token = token;    
 

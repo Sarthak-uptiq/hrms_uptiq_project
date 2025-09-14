@@ -59,8 +59,9 @@ export const addEmployeeController = async (req: Request, res: Response, next: N
     });
 
     await axios.post("http://localhost:3000/api/auth/register", {
-      email: body.email,
+      email: employee.email,
       role: role.role_id === 1 ? "HR" : "EMPLOYEE",
+      role_id: employee.emp_id
     }, {
       headers: {
         Authorization: `Bearer ${req.cookies.auth_token}`,
