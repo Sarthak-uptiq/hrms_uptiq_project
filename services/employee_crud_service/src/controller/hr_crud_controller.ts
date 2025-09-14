@@ -28,6 +28,7 @@ export const addEmployeeController = async (req: Request, res: Response, next: N
     const body: addEmployeeSchemaType = req.body as addEmployeeSchemaType;
 
     const hr_email = req.userEmail;
+    console.log("HR Email:", hr_email);
 
     if(!hr_email){
       return res.status(403).json({ message: "Unauthorized: Not HR" });

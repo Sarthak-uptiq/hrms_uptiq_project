@@ -6,7 +6,7 @@ export async function isHR(email: string) {
     where: { email },
     select: { role_id: true },
   });
-  return hr && hr.role_id === 1;
+  return hr && hr.role_id === 3;
 }
 
 export async function getRoleById(role_id: number) {

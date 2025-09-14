@@ -115,8 +115,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             role: userExists.authrole
         });
 
-        console.log("user presnet");
-        res.cookie("auth_token", token, { httpOnly: true, sameSite: "lax", maxAge: Number(EXPIRY)});
+        console.log("user present");
+        res.cookie("auth_token", token, { httpOnly: true, sameSite: "lax", secure: true, domain: "localhost", maxAge: 60*60*1000});
         return res.status(201).json({message: "User logged in successfully", user: {
             email: userExists.email,
             role: userExists.authrole,
@@ -153,3 +153,13 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
         next(error);
     }
 }
+
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        res.clearCookie('auth_token', { httpOnly: true, sameSite: "lax", secure: true, domain: "localhost"});
+        return res.status(200).json({ message: 'Logged out successfully' });
+    } catch (error) {
+        console.log(`Error in logout: ${error}`);
+        next(error);
+    }
+};
