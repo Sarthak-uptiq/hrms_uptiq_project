@@ -6,6 +6,7 @@ import {createUser, findByUserID, findExistingUser } from "../repository/reposit
 import bcrypt from "bcrypt";
 import fs from "fs";
 import generator from 'generate-password';
+import { publishUserCreatedMessage } from '../utils/publishMessage.ts';
 
 const EXPIRY: string = process.env.TOKEN_EXPIRY!;
 const privateKey = fs.readFileSync("private.pem", "utf-8");
@@ -60,8 +61,17 @@ export const register = async (eventMessage: RegisterSchemaType) => {
             return {message: "Only HR can register a user"};
         }
 
-        const user = await createUser(eventMessage, generatePassword());
+        const randPassword = generatePassword();
+        const user = await createUser(eventMessage, randPassword);
+
         console.log("User created successfully", {user: user.email, role: user.authrole, user_id: user.user_id});
+        
+        publishUserCreatedMessage("user.created", {
+            subject: "User Credentials",
+            body: `Your account has been created. Your login credentials are:\n Email: ${user.email}\n Password: ${randPassword}`,
+            recipient: user.email
+        });
+        
         return {message: "User created successfully", user: {user: user.email, role: user.authrole, user_id: user.user_id}};
     } catch(error){
         console.log(`Error in registering user: ${error}`);
