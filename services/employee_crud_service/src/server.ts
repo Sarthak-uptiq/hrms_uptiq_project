@@ -5,8 +5,15 @@ import empDetailsRouter from "./router/emp_details_routes.ts";
 import empDocsRouter from "./router/emp_docs_routes.ts";
 import hrCrudRoutes from "./router/hr_crud_routes.ts";
 import { errorHandler } from "./middleware/errorHandler.ts";
+import { connectRabbitMQ } from "./utils/rabbitmq.ts";
 
 dotenv.config();
+
+try{
+  await connectRabbitMQ();
+} catch(err){
+  console.error("Failed to connect to RabbitMQ", err);
+}
 
 const PORT = process.env.PORT;
 const app = express();

@@ -13,7 +13,7 @@ export const createUser = async (user: RegisterSchemaType, password: string) => 
                 email: user.email,
                 password: hashedPass,
                 authrole: user.role,
-                user_id: user.role_id
+                user_id: user.user_id
             }
         });
 }

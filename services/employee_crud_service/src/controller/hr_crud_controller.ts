@@ -22,6 +22,8 @@ import {
   editRole,
   editDepartment,
 } from "../repository/hr_crud_repository.ts";
+import { publishEmpAddMessage } from "../utils/rabbitmq.ts";
+import { request } from "http";
 
 export const addEmployeeController = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -59,14 +61,21 @@ export const addEmployeeController = async (req: Request, res: Response, next: N
       dep_id: department.dep_id,
     });
 
-    await axios.post("http://localhost:3000/api/auth/register", {
+    // await axios.post("http://localhost:3000/api/auth/register", {
+    //   email: employee.email,
+    //   role: role.role_id === 1 ? "HR" : "EMPLOYEE",
+    //   role_id: employee.emp_id
+    // }, {
+    //   headers: {
+    //     Authorization: `Bearer ${req.cookies.auth_token}`,
+    //   }
+    // });
+    
+    publishEmpAddMessage("employee.created", {
       email: employee.email,
-      role: role.role_id === 1 ? "HR" : "EMPLOYEE",
-      role_id: employee.emp_id
-    }, {
-      headers: {
-        Authorization: `Bearer ${req.cookies.auth_token}`,
-      }
+      role: role.role_id === 3 ? "HR" : "EMPLOYEE",
+      user_id: employee.emp_id,
+      requested_by: hrUser.emp_id
     });
     return res.status(201).json({ message: "Employee added", employee });
   } catch (err) {

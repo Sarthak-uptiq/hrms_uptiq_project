@@ -3,12 +3,20 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors"; // Import cors
 import { errorHandler } from "./middleware/errorHandler.ts";
+import { userConsumer } from "./utils/rabitMQConfig.ts";
+
 
 // importing auth route for authentication
 
 import authRoutes from "./router/auth_routes.ts"; 
 
 dotenv.config();
+
+try{
+  await userConsumer();  
+} catch(err){ 
+  console.error("Error inside consumer", err);
+}
 
 const app = express();
 const PORT = process.env.PORT;

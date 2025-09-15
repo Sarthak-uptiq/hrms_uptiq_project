@@ -42,46 +42,30 @@ const generatePassword = (): string => {
 });
 }
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
+export const register = async (eventMessage: RegisterSchemaType) => {
     try{
-        const body = req.body as RegisterSchemaType;
-        const userExists: boolean = (await findExistingUser(body.email))?true:false;
+        const userExists: boolean = (await findExistingUser(eventMessage.email))?true:false;
 
         if(userExists){
-            return res.status(409).json({
-                success: false,
-                message: "User already exists"
-            });
+            return {message: "User already exists"};
         }
 
-        const jwtToken = req.cookies.auth_token;
-
-        if(!jwtToken){
-            return res.status(401).json({message: "auth token not found"});
-        }
-
-        const decoded: JwtPayload = jwt.verify(jwtToken, privateKey) as JwtPayload;
-
-        if(!decoded){
-            return res.status(401).json({message: "JWT payload not found"});
-        }
-
-        const requestingUser = await findByUserID(decoded.id);
+        const requestingUser = await findByUserID(eventMessage.requested_by);
 
         if(!requestingUser){
-            return res.status(404).json({message: "Reqesting user does not exist"});
+            return {message: "Requesting user not found"};
         }
 
         if(requestingUser.authrole!=="HR"){
-            return res.status(404).json({message: "Request Denied: Unauthorized"});
+            return {message: "Only HR can register a user"};
         }
 
-        const user = await createUser(body, generatePassword());
-
-        return res.status(201).json({message: "User Created successfully"});
+        const user = await createUser(eventMessage, generatePassword());
+        console.log("User created successfully", {user: user.email, role: user.authrole, user_id: user.user_id});
+        return {message: "User created successfully", user: {user: user.email, role: user.authrole, user_id: user.user_id}};
     } catch(error){
         console.log(`Error in registering user: ${error}`);
-        next(error);
+        return {message: "Error in registering user"};
     }
 }
 
