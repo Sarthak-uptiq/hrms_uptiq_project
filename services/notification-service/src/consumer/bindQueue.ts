@@ -1,0 +1,17 @@
+import type { Channel } from "amqplib";
+
+
+export async function bindQueue(channel: Channel, queueName: string, exchangeName: string, routingKey: string) {
+  if (!channel) {
+    throw new Error("Channel is not initialized");
+  }
+
+  try {
+    await channel.assertQueue(queueName, { durable: true });
+    await channel.bindQueue(queueName, exchangeName, routingKey);
+    console.log(`Queue ${queueName} bound to exchange ${exchangeName} with routing key ${routingKey}`);
+  } catch (error) {
+    console.error("Error in binding queue:", error);
+    throw error;
+  }
+}
