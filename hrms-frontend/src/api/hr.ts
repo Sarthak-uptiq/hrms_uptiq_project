@@ -6,13 +6,13 @@ import axios from "axios";
 
 // This new API instance points to your HR routes.
 const api = axios.create({
-  baseURL: "http://localhost:3000/api/hr", 
+  baseURL: "http://localhost:3000/api/hr",
   withCredentials: true, // This sends the auth cookie with every request
 });
 
 // --- Types (Manually defined for the Frontend) ---
 
-// CORRECTED TYPE:
+// ... (all existing types like EmployeeData, RoleData, etc. remain unchanged) ...
 export type EmployeeData = {
   emp_id: string;
   name: string;
@@ -23,10 +23,10 @@ export type EmployeeData = {
   status: string;
   policy_ack_status: string; // <-- ADDED
   department: { dep_name: string };
-  role: { 
+  role: {
     role_name: string;
     // You can add the compensation fields here too if you need them
-    total_ctc: number; 
+    total_ctc: number;
     base_salary: number;
     // ...etc
   };
@@ -81,6 +81,7 @@ export type EditRolePayload = {
 // --- API Functions ---
 
 // == Employee Management ==
+// ... (getAllEmployees, addEmployee, terminateEmployee functions remain unchanged) ...
 export const getAllEmployees = async (): Promise<EmployeeData[]> => {
   const res = await api.get("/get-all-employees");
   return res.data.employees;
@@ -96,7 +97,9 @@ export const terminateEmployee = async (email: string) => {
   return res.data;
 };
 
+
 // == Department Management ==
+// ... (getAllDepartments, addDepartment, editDepartment functions remain unchanged) ...
 export const getAllDepartments = async (): Promise<DepartmentData[]> => {
   const res = await api.get("/get-all-departments");
   return res.data.departments;
@@ -113,19 +116,26 @@ export const editDepartment = async (dep_id: number, dep_name: string) => {
 };
 
 // == Role Management ==
+// ... (getAllRoles, addRole, editRole functions remain unchanged) ...
 export const getAllRoles = async (): Promise<RoleData[]> => {
   const res = await api.get("/get-all-roles");
   return res.data.roles;
 };
 
-// This function signature is NOW UPDATED to use our manual frontend type
 export const addRole = async (payload: AddRolePayload) => {
   const res = await api.post("/add-role", payload);
   return res.data;
 };
 
-// This function signature is NOW UPDATED to use our manual frontend type
 export const editRole = async (role_id: number, payload: EditRolePayload) => {
   const res = await api.put(`/edit-role/${role_id}`, payload);
+  return res.data;
+};
+
+// == PAYROLL ==
+// --- THIS IS THE NEW FUNCTION ---
+export const initiatePayroll = async () => {
+  // Backend returns { message: "Payroll initiated", payload: [...] }
+  const res = await api.get("/initiate-payroll");
   return res.data;
 };

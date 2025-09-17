@@ -14,9 +14,13 @@ import type {
   EditRolePayload
 } from '../api/hr';
 
+// --- IMPORT THE NEW PAYROLL PAGE ---
+import PayrollPage from './PayrollPage';
+
+
 //=================================================================
 // 1. MY PROFILE TAB
-// We just re-use the component we already built.
+// ... (This component is unchanged) ...
 //=================================================================
 const MyProfileTab: React.FC = () => {
   return (
@@ -29,8 +33,10 @@ const MyProfileTab: React.FC = () => {
 
 //=================================================================
 // 2. EMPLOYEE MANAGEMENT TAB (Master-Detail Implementation)
+// ... (This component is unchanged) ...
 //=================================================================
 const EmployeeManagementTab: React.FC = () => {
+  // ... (all code for this tab is unchanged)
   const [employees, setEmployees] = useState<EmployeeData[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeData | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -62,11 +68,10 @@ const EmployeeManagementTab: React.FC = () => {
     setShowAddForm(true);
   };
 
-  // Called from the Add/Terminate components to refresh the list
   const handleActionComplete = () => {
     setShowAddForm(false);
     setSelectedEmployee(null);
-    fetchData(); // Refetch the main employee list
+    fetchData(); 
   };
 
   if (loading) return <div>Loading employees...</div>;
@@ -107,6 +112,7 @@ const EmployeeManagementTab: React.FC = () => {
 };
 
 // --- Employee Sub-Component: Detail View ---
+// ... (This component is unchanged) ...
 const EmployeeDetail: React.FC<{ employee: EmployeeData, onComplete: () => void }> = ({ employee, onComplete }) => {
   
   const handleTerminate = async () => {
@@ -138,7 +144,9 @@ const EmployeeDetail: React.FC<{ employee: EmployeeData, onComplete: () => void 
   );
 };
 
+
 // --- Employee Sub-Component: Add Employee Form ---
+// ... (This component is unchanged) ...
 const AddEmployeeForm: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [formData, setFormData] = useState<Omit<NewEmployeePayload, 'role_id' | 'dep_id'>>({
     name: '', email: '', city: '', state: '', pincode: ''
@@ -209,9 +217,10 @@ const AddEmployeeForm: React.FC<{ onComplete: () => void }> = ({ onComplete }) =
 
 //=================================================================
 // 3. ROLE MANAGEMENT TAB
-// Uses the same Master-Detail pattern, but the "Detail" pane is the Edit Form.
+// ... (This component is unchanged) ...
 //=================================================================
 const RoleManagementTab: React.FC = () => {
+  // ... (all code for this tab is unchanged)
   const [roles, setRoles] = useState<RoleData[]>([]);
   const [selectedRole, setSelectedRole] = useState<RoleData | null>(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
@@ -270,8 +279,9 @@ const RoleManagementTab: React.FC = () => {
 };
 
 // --- Role Sub-Component: Add/Edit Form ---
+// ... (This component is unchanged) ...
 const RoleEditForm: React.FC<{ role: RoleData | null, onComplete: () => void }> = ({ role, onComplete }) => {
-  // If a role is passed, we are editing. If role is null, we are adding.
+  // ... (all code for this component is unchanged)
   const isEditMode = role !== null;
   const [formData, setFormData] = useState<AddRolePayload | EditRolePayload>({
     role_name: role?.role_name || '',
@@ -283,7 +293,6 @@ const RoleEditForm: React.FC<{ role: RoleData | null, onComplete: () => void }> 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    // Convert numbers from string input
     const newValue = ['total_ctc', 'base_salary', 'bonus', 'allowance'].includes(name)
       ? parseInt(value)
       : value;
@@ -294,11 +303,9 @@ const RoleEditForm: React.FC<{ role: RoleData | null, onComplete: () => void }> 
     e.preventDefault();
     try {
       if (isEditMode && role) {
-        // Edit Mode
         await hrApi.editRole(role.role_id, formData);
         alert("Role updated successfully.");
       } else {
-        // Add Mode (ensure all fields are present)
         await hrApi.addRole(formData as AddRolePayload);
         alert("Role added successfully.");
       }
@@ -324,9 +331,10 @@ const RoleEditForm: React.FC<{ role: RoleData | null, onComplete: () => void }> 
 
 //=================================================================
 // 4. DEPARTMENT MANAGEMENT TAB
-// This is the full implementation, replacing your placeholder.
+// ... (This component is unchanged) ...
 //=================================================================
 const DepartmentManagementTab: React.FC = () => {
+  // ... (all code for this tab is unchanged)
   const [departments, setDepartments] = useState<DepartmentData[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState<DepartmentData | null>(null);
   const [isAddingNew, setIsAddingNew] = useState(false);
@@ -348,7 +356,6 @@ const DepartmentManagementTab: React.FC = () => {
     fetchData();
   }, []);
 
-  // This is passed to the form to refetch the list after a change
   const handleActionComplete = () => {
     setSelectedDepartment(null);
     setIsAddingNew(false);
@@ -384,7 +391,7 @@ const DepartmentManagementTab: React.FC = () => {
         <div style={styles.detailPanel}>
           {(selectedDepartment || isAddingNew) ? (
             <DepartmentEditForm
-              key={selectedDepartment?.dep_id ?? 'new'} // Re-mounts form on selection change
+              key={selectedDepartment?.dep_id ?? 'new'} 
               department={selectedDepartment}
               onComplete={handleActionComplete}
             />
@@ -398,19 +405,19 @@ const DepartmentManagementTab: React.FC = () => {
 };
 
 // --- Department Sub-Component: Add/Edit Form ---
+// ... (This component is unchanged) ...
 const DepartmentEditForm: React.FC<{ department: DepartmentData | null, onComplete: () => void }> = ({ department, onComplete }) => {
+  // ... (all code for this component is unchanged)
   const isEditMode = department !== null;
   const [depName, setDepName] = useState("");
 
-  // This effect populates the form when a department is selected,
-  // or clears it when 'Add New' is clicked.
   useEffect(() => {
     if (department) {
       setDepName(department.dep_name);
     } else {
-      setDepName(""); // Clear field for 'Add New' mode
+      setDepName(""); 
     }
-  }, [department]); // Re-run this logic every time the department prop changes
+  }, [department]); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -421,15 +428,13 @@ const DepartmentEditForm: React.FC<{ department: DepartmentData | null, onComple
 
     try {
       if (isEditMode && department) {
-        // Edit Mode
         await hrApi.editDepartment(department.dep_id, depName);
         alert("Department updated successfully.");
       } else {
-        // Add Mode
         await hrApi.addDepartment(depName);
         alert("Department added successfully.");
       }
-      onComplete(); // Tell the parent to refetch the list
+      onComplete(); 
     } catch (err) {
       alert("Action failed. Please try again.");
       console.error(err);
@@ -460,25 +465,14 @@ const DepartmentEditForm: React.FC<{ department: DepartmentData | null, onComple
 
 //=================================================================
 // 5. PAYROLL TAB
+// --- THIS IS NOW GONE! ---
 //=================================================================
-const PayrollTab: React.FC = () => {
-  const handleInitiatePayroll = () => {
-    alert("TODO: This feature is not connected. No backend API route exists for payroll.");
-  };
-
-  return (
-    <div>
-      <h2 style={styles.tabTitle}>Payroll</h2>
-      <p>HR's own payroll data would appear here (if different from My Profile).</p>
-      <button onClick={handleInitiatePayroll}>Initiate Company Payroll</button>
-    </div>
-  );
-};
-
+// (The old placeholder component is removed)
 
 
 //=================================================================
 // MAIN HR PAGE COMPONENT (Shell and Navigation)
+// This is updated to render the new PayrollPage component
 //=================================================================
 type TabName = 'profile' | 'employees' | 'roles' | 'departments' | 'payroll';
 
@@ -498,7 +492,7 @@ const HRPage: React.FC = () => {
       case 'departments':
         return <DepartmentManagementTab />;
       case 'payroll':
-        return <PayrollTab />;
+        return <PayrollPage />; // <-- THIS IS THE CHANGE
       default:
         return <MyProfileTab />;
     }
@@ -527,8 +521,7 @@ const HRPage: React.FC = () => {
 };
 
 // --- STYLES --- 
-// Added some basic inline styles to make the new layout work.
-// You should move these to your CSS file.
+// (Removed the payroll-specific styles from here)
 const styles = {
   pageContainer: {
     maxWidth: '1400px',
@@ -570,7 +563,7 @@ const styles = {
   marginTop: 0,
   borderBottom: '1px solid #eee',
   paddingBottom: '0.5rem',
-  color: '#333', // <-- ADD THIS
+  color: '#333', 
 },
   masterDetailLayout: {
     display: 'grid',
@@ -587,7 +580,7 @@ const styles = {
   },
   detailPanel: {
   paddingLeft: '1.5rem',
-  color: '#333', // <-- ADD THIS
+  color: '#333', 
 },
   listItem: (isActive: boolean): React.CSSProperties => ({
   padding: '1rem',
@@ -597,7 +590,7 @@ const styles = {
   borderRadius: '4px',
   backgroundColor: isActive ? '#e6f2ff' : 'transparent',
   borderColor: isActive ? '#007bff' : 'transparent',
-  color: '#333', // <-- ADD THIS
+  color: '#333',
 }),
   addButton: {
     width: '100%',

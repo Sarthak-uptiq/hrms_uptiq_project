@@ -40,7 +40,7 @@ export type EmployeeDetails = {
 
 // --- API Functions ---
 
-/**
+/**  
  * Fetches all details for the currently logged-in employee.
  * Backend Route: GET /get-all-details
  */
