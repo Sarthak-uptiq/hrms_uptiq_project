@@ -1,289 +1,148 @@
-API Documentation
+# Employee Management System (Microservices)
 
-This document provides detailed information about the API endpoints for the application. The base URL for all API calls is the gateway URL: http://localhost:3000.
-1. Authentication Service (/api/auth)
+This project is a back-end application for a comprehensive Employee Management System. It is built using a microservice architecture, where different business functionalities are decoupled into independent services. All services are routed through a central API Gateway, which acts as the single entry point for a client application.
 
-This service handles user registration, login, and token verification.
-1.1. POST /api/auth/register
+## System Architecture
 
-Registers a new user. This is an HR-only action.
+The system is composed of four main microservices:
+1.  **API Gateway**: The single entry point for all client requests.
+2.  **Auth Service**: Handles user authentication, token management, and event-driven registration.
+3.  **Employee Service**: The core service for all HR and employee-facing data management.
+4.  **Payroll Service**: Manages payroll records and listens for events to trigger new payroll runs.
 
-Request Body:
+These services communicate with each other asynchronously using a message broker (e.g., RabbitMQ) for events like user registration, role creation, and payroll initiation.
 
-{
-  "email": "employee@example.com",
-  "role": "EMPLOYEE",
-  "requestingUserId": "hr_user_id_string"
-}
 
-Description:
 
-    email: (string, required) The email of the new employee.
+[Image of a microservice architecture diagram]
 
-    role: (string, required) The role of the new user. Can be "HR" or "EMPLOYEE".
 
-    requestingUserId: (string, required) The user ID of the HR representative making the request.
+---
 
-Responses:
+## Service Breakdown
 
-    201 Created: User created successfully.
+### 1. API Gateway
 
-    {
-      "message": "User Created successfully"
-    }
+* [cite_start]**Port**: `3000` [cite: 1]
+* **Description**: This service is the front door to the application. [cite_start]It uses `http-proxy-middleware` to route incoming requests to the correct downstream service[cite: 1]. [cite_start]It also handles CORS for the client application[cite: 1].
+* [cite_start]**Routing Rules**[cite: 1]:
+    * `http://localhost:3000/api/auth/*` &rarr; **Auth Service** (`:5000`)
+    * `http://localhost:3000/api/emp/*` &rarr; **Employee Service** (`:5001`)
+    * `http://localhost:3000/api/hr/*` &rarr; **Employee Service** (`:5001`)
+    * `http://localhost:3000/api/payroll/*` &rarr; **Payroll Service** (`:5005`)
 
-    409 Conflict: If a user with the given email already exists.
+### 2. Auth Service
 
-    {
-      "success": false,
-      "message": "User already exists"
-    }
+* [cite_start]**Port**: `5000` (inferred from Gateway) [cite: 1]
+* **Description**: Manages user identity and authentication.
+* **API Endpoints**:
+    * `POST /login`: Authenticates a user and sets a secure `httpOnly` cookie.
+    * `GET /verify-token`: Verifies the validity of the user's auth token cookie.
+    * `POST /logout`: Clears the auth token cookie.
+* **Event-Driven Processes**:
+    * **User Registration**: This service does not have a public `/register` endpoint. Instead, it listens for an event (e.g., `employee.created` from the Employee Service) to create a new user, generate a random password, and publish a message with the new credentials.
 
-    404 Not Found: If the requestingUserId does not belong to a valid user.
+### 3. Employee Service
+
+* [cite_start]**Port**: `5001` (inferred from Gateway) [cite: 1]
+* **Description**: This is the core service for managing all employee data, organizational structure (roles, departments), and HR-specific workflows.
+* **HR Admin API (`/api/hr`)**:
+    * **Employee Management**: `POST /add-employee`, `PUT /terminate-employee`, `GET /get-all-employees`.
+    * **Department Management**: `POST /add-department`, `PUT /edit-department/:dep_id`, `GET /get-all-departments`.
+    * **Role Management**: `POST /add-role`, `PUT /edit-role/:role_id`, `GET /get-all-roles`, `GET /get-role-info/:role_id`.
+    * **Payroll**: `GET /initiate-payroll` (Publishes an event to trigger the Payroll Service).
+* **Employee Details API (`/api/emp/details`)**:
+    * `GET /get-all-details`: Fetches the logged-in user's own profile.
+    * `PUT /update-emp-details`: Allows a user to update their personal information.
+    * `PUT /ack-policies`: Allows a user to acknowledge company policies.
 
-    403 Forbidden: If the requestingUserId does not have the "HR" role.
+### 4. Payroll Service
 
-1.2. POST /api/auth/login
+* [cite_start]**Port**: `5005` (inferred from Gateway) [cite: 1]
+* **Description**: Manages historical payroll records and maintains its own projection of role data.
+* **API Endpoints**:
+    * `GET /get-payroll`: Retrieves a list of all past payroll runs.
+* **Event-Driven Processes**:
+    * **Payroll Creation**: Listens for the `payroll.initiated` event from the Employee Service. When received, it calculates and creates a new `Payroll` record in its database.
+    * **Role Sync**: Listens for `role.created` and `role.updated` events to keep its local `RolesProjection` table synchronized with the Employee Service.
 
-Logs in an existing user.
+---
 
-Request Body:
+## Tech Stack
 
-{
-  "email": "user@example.com",
-  "password": "user_password",
-  "role": "EMPLOYEE"
-}
+* [cite_start]**Backend**: Node.js, Express.js [cite: 1]
+* **Language**: TypeScript
+* **Database**: PostgreSQL
+* **ORM**: Prisma
+* [cite_start]**Validation**: Zod [cite: 2, 3]
+* **Authentication**: JWT (jsonwebtoken), bcrypt
+* [cite_start]**Gateway**: `http-proxy-middleware` [cite: 1]
+* **Messaging**: RabbitMQ (inferred from `publishMessage` and `EXCHANGE_NAME`)
+* [cite_start]**Utilities**: `cors` [cite: 1]
 
-Description:
+---
 
-    email: (string, required) The user's email.
+## API Documentation
 
-    password: (string, required) The user's password.
+For detailed information on each service's endpoints, request bodies, and responses, please see the individual documentation files:
 
-    role: (string, required) The role the user is attempting to log in as ("HR" or "EMPLOYEE").
+* [API Gateway Documentation](api-gateway.md)
+* [Auth Service Documentation](auth-service.md)
+* [Employee Service Documentation](employee-service.md)
+* [Payroll Service Documentation](payroll-service.md)
 
-Responses:
+---
 
-    201 Created: User logged in successfully. Sets an auth_token cookie.
+## How to Run
 
-    {
-      "message": "User logged in successfully",
-      "user": {
-        "email": "user@example.com",
-        "role": "EMPLOYEE",
-        "user_id": "user_id_string"
-      }
-    }
+### Prerequisites
 
-    404 Not Found: If the user does not exist.
-
-    401 Unauthorized: If the password is incorrect.
-
-    409 Conflict: If the role provided does not match the user's role.
-
-1.3. GET /api/auth/verify-token
-
-Verifies the authentication token stored in the cookies.
-
-Request Body:
-
-None.
-
-Responses:
-
-    200 OK: Token is valid.
-
-    {
-      "user": {
-        "email": "user@example.com",
-        "id": "user_id_string",
-        "role": "EMPLOYEE"
-      }
-    }
-
-    401 Unauthorized: If the token is not found or is invalid.
-
-2. HR Management Service (/api/hr)
-
-This service handles HR-specific actions like managing employees, roles, and departments. All endpoints require the requester to be an HR user.
-2.1. POST /api/hr/add-employee
-
-Adds a new employee to the system and triggers registration in the auth service.
-
-Request Body:
-
-{
-  "hr_email": "hr@example.com",
-  "name": "John Doe",
-  "email": "john.doe@example.com",
-  "city": "New York",
-  "state": "NY",
-  "pincode": "10001",
-  "role_name": "Software Engineer",
-  "dep_name": "Technology"
-}
-
-Responses:
-
-    201 Created: Employee added successfully.
-
-    403 Forbidden: If hr_email is not a valid HR user.
-
-    404 Not Found: If role_name or dep_name do not exist.
-
-2.2. PUT /api/hr/terminate-employee
-
-Terminates an existing employee.
-
-Request Body:
-
-{
-  "hr_email": "hr@example.com",
-  "email": "employee_to_terminate@example.com"
-}
-
-Responses:
-
-    200 OK: Employee terminated successfully.
-
-    403 Forbidden: If hr_email is not a valid HR user.
-
-2.3. GET /api/hr/get-all-employees
-
-Retrieves a list of all employees.
-
-Request Body:
-
-None.
-
-Responses:
-
-    200 OK: Returns an array of all employee objects.
-
-    {
-      "employees": [
-        {
-          "emp_id": 1,
-          "name": "Jane Doe",
-          "email": "jane.doe@example.com",
-          /* ... other fields */
-        }
-      ]
-    }
-
-2.4. POST /api/hr/add-department
-
-Adds a new department.
-
-Request Body:
-
-{
-  "hr_email": "hr@example.com",
-  "dep_name": "New Department"
-}
-
-Responses:
-
-    201 Created: Department added successfully.
-
-    403 Forbidden: If hr_email is not a valid HR user.
-
-2.5. POST /api/hr/add-role
-
-Adds a new role with salary details.
-
-Request Body:
-
-{
-  "hr_email": "hr@example.com",
-  "role_name": "Senior Developer",
-  "total_ctc": 120000,
-  "base_salary": 90000,
-  "bonus": 20000,
-  "allowance": 10000
-}
-
-Responses:
-
-    201 Created: Role added successfully.
-
-    403 Forbidden: If hr_email is not a valid HR user.
-
-3. Employee Details Service (/api/emp/details)
-
-This service manages retrieving and updating individual employee details. Requires authentication.
-3.1. GET /api/emp/details/get-all-details
-
-Retrieves detailed information for a specific employee.
-
-Request Body:
-
-{
-  "email": "employee@example.com"
-}
-
-Responses:
-
-    200 OK: User found.
-
-    {
-      "message": "User found",
-      "user": {
-        "emp_id": 1,
-        "name": "John Doe",
-        "email": "john.doe@example.com",
-        /* ... other details */
-      }
-    }
-
-    404 Not Found: If no user is found with the provided email.
-
-3.2. PUT /api/emp/details/update-emp-details
-
-Updates one or more details for an employee.
-
-Request Body:
-
-{
-  "existingEmail": "employee@example.com",
-  "name": "John A. Doe",
-  "city": "Boston",
-  "state": "MA"
-}
-
-Description:
-
-    existingEmail: (string, required) The email of the employee to update.
-
-    Other fields are optional and will be updated if provided.
-
-Responses:
-
-    200 OK: User updated successfully.
-
-    409 Conflict: If no update data is provided.
-
-3.3. PUT /api/emp/details/update-emp-status or PUT /api/emp/details/ack-policies
-
-Updates the employee's main status or their policy acknowledgement status. Both endpoints use the same controller.
-
-Request Body:
-
-{
-  "email": "employee@example.com",
-  "statusToUpdate": "EMP_STATUS",
-  "status_flag": true
-}
-
-Description:
-
-    email: (string, required) The employee's email.
-
-    statusToUpdate: (string, required) The status to update. Can be EMP_STATUS or POLICY.
-
-    status_flag: (boolean, required) The new value for the flag.
-
-Responses:
-
-    200 OK: Status updated successfully.
+* Node.js (v18+)
+* npm
+* Docker (for PostgreSQL & RabbitMQ)
+
+### Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone [your-repo-url]
+    cd [project-folder]
+    ```
+
+2.  **Install dependencies for each service:**
+    You will need to run `npm install` in each service's directory:
+    * `api-gateway/`
+    * `auth-service/`
+    * `employee-service/`
+    * `payroll-service/`
+
+3.  **Set up Environment Variables:**
+    Each service (except the gateway) requires a `.env` file with a `DATABASE_URL` for Prisma.
+    ```
+    # Example for auth-service/.env
+    DATABASE_URL="postgresql://user:password@localhost:5432/auth_db?schema=public"
+    TOKEN_EXPIRY="1h"
+    ```
+
+4.  **Run Database Migrations:**
+    For each service with a `schema.prisma` file, run the migrate command:
+    ```bash
+    cd auth-service
+    npx prisma migrate dev
+    
+    cd ../employee-service
+    npx prisma migrate dev
+    
+    cd ../payroll-service
+    npx prisma migrate dev
+    ```
+
+5.  **Start all services:**
+    Open a terminal for each service and run `npm start`.
+
+    * `cd api-gateway && npm start` (Runs on port 3000)
+    * `cd auth-service && npm start` (Runs on port 5000)
+    * `cd employee-service && npm start` (Runs on port 5001)
+    * `cd payroll-service && npm start` (Runs on port 5005)
+
+The application gateway is now accessible at `http://localhost:3000`.
