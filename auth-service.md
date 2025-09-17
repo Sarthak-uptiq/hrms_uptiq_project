@@ -1,20 +1,17 @@
-Here is the raw Markdown content for the API documentation. You can copy this and save it as a `.md` file.
-
-````markdown
 # Auth Service API Documentation
 
 This service handles user authentication, including login, logout, and token verification. [cite_start]User registration is handled as an internal, event-driven process rather than a direct API endpoint[cite: 2].
 
-Authentication is managed using a JWT (JSON Web Token) set in a secure, `httpOnly` cookie named `auth_token`. This token is signed using the `RS26` algorithm and has a 1-hour expiry.
+Authentication is managed using a JWT (JSON Web Token) set in a secure, `httpOnly` cookie named `auth_token`. This token is signed using the `RS256` algorithm and has a 1-hour expiry.
 
 ## Data Models
 
 ### `AuthRole` (Enum)
 
 [cite_start]Defines the possible roles a user can have[cite: 1]:
-* [cite_start]`ADMIN` [cite: 1]
-* [cite_start]`HR` [cite: 1]
-* [cite_start]`EMPLOYEE` [cite: 1]
+* [cite_start]`ADMIN`[cite: 1]
+* [cite_start]`HR`[cite: 1]
+* [cite_start]`EMPLOYEE`[cite: 1]
 
 ### `User` (Database Model)
 
@@ -35,7 +32,7 @@ Authentication is managed using a JWT (JSON Web Token) set in a secure, `httpOnl
 
 ### 1. User Login
 
-* [cite_start]**`POST /login`** [cite: 2]
+* [cite_start]**`POST /login`**[cite: 2]
 
 Authenticates a user based on email and password. On success, it sets a signed `auth_token` cookie.
 
@@ -49,7 +46,7 @@ Based on `UserSchema`:
   "password": "user_password",
   "role": "EMPLOYEE"
 }
-````
+```
 
 **Implementation Notes:**
 
@@ -95,9 +92,9 @@ Based on `UserSchema`:
     }
     ```
 
-### 2\. Verify Authentication Token
+### 2. Verify Authentication Token
 
-  * [cite\_start]**`GET /verify-token`** [cite: 2]
+* [cite_start]**`GET /verify-token`**[cite: 2]
 
 Verifies the `auth_token` cookie sent with the request. This is used to confirm if a user is still authenticated.
 
@@ -129,9 +126,9 @@ Returns the decoded user payload from the JWT.
     ```
   * **`500 Internal Server Error`**: (If the token is invalid, malformed, or expired)
 
-### 3\. User Logout
+### 3. User Logout
 
-  * [cite\_start]**`POST /logout`** [cite: 2]
+* [cite_start]**`POST /logout`**[cite: 2]
 
 Logs the user out by clearing the `auth_token` cookie.
 
@@ -157,7 +154,7 @@ Logs the user out by clearing the `auth_token` cookie.
 
 ### User Registration
 
-[cite\_start]User registration is **not** an HTTP endpoint[cite: 2]. It is handled by an internal `register` function that is likely triggered by a message queue or another internal service.
+[cite_start]User registration is **not** an HTTP endpoint[cite: 2]. It is handled by an internal `register` function that is likely triggered by a message queue or another internal service.
 
 **Trigger Input (`RegisterSchemaType`)**
 
@@ -188,8 +185,3 @@ The function expects an event message with the following structure:
   * `"Only HR can register a user"`
   * `"User created successfully"`
   * `"Error in registering user"`
-
-<!-- end list -->
-
-```
-```

@@ -9,9 +9,9 @@ This service manages employee data, organizational structure (roles, departments
 
 ## Authentication
 
-[cite_start]All endpoints in this service are protected and require authentication[cite: 5, 6]. [cite_start]The `authenticateRequest` middleware is applied to all routes, which is expected to verify a token and populate a `req.userEmail` property on the request object[cite: 3, 4, 5, 6]. [cite_start]This email is used to identify the user making the request[cite: 3, 4].
+All endpoints in this service are protected and require authentication. The `authenticateRequest` middleware is applied to all routes, which is expected to verify a token and populate a `req.userEmail` property on the request object. This email is used to identify the user making the request.
 
-[cite_start]Most HR Admin API endpoints are further protected by a `validateHR` middleware, which ensures that the authenticated user has the permissions of an HR representative[cite: 5].
+Most HR Admin API endpoints are further protected by a `validateHR` middleware, which ensures that the authenticated user has the permissions of an HR representative.
 
 ---
 
@@ -27,9 +27,9 @@ Represents an individual employee in the database.
 | `name` | String | Employee's full name. |
 | `email` | String | Employee's unique email address. |
 | `city` | String? | Optional: City of residence. |
-| `state` | String? | [cite_start]Optional: State of residence[cite: 3]. |
+| `state` | String? | Optional: State of residence. |
 | `pincode` | String? | Optional: Pincode of residence. |
-| `dep_id` | Int | [cite_start]Foreign key for the `department`[cite: 4]. |
+| `dep_id` | Int | Foreign key for the `department`. |
 | `role_id` | Int | Foreign key for the `role`. |
 | `status` | Enum | `ACTIVE`, `INACTIVE`, `TERMINATED`. |
 | `policy_ack_status` | Enum | `ACKNOWLEDGED`, `PENDING`. |
@@ -54,7 +54,7 @@ Represents a job role and its compensation.
 | `role_id` | Int | Unique ID (auto-increment) for the role. |
 | `role_name` | String | Unique name of the role. |
 | `total_ctc` | Float | Total Cost to Company. |
-| `base_salary` | Float | [cite_start]Base salary component[cite: 6]. |
+| `base_salary` | Float | Base salary component. |
 | `bonus` | Float | Bonus component. |
 | `allowance` | Float | Allowance component. |
 | `employees` | `employee[]` | Relation to employees with this role. |
@@ -67,10 +67,10 @@ These endpoints are for an authenticated employee to manage their *own* data.
 
 ### 1. Get Employee Details
 
-* [cite_start]**`GET /get-all-details`** [cite: 6]
-* [cite_start]**Description:** Fetches the complete profile for the authenticated user, including their role and department information[cite: 3].
-* **Authentication:** Required. [cite_start]Uses `req.userEmail` to find the user[cite: 3, 6].
-* [cite_start]**Success Response (200):** [cite: 3]
+* **`GET /get-all-details`**
+* **Description:** Fetches the complete profile for the authenticated user, including their role and department information.
+* **Authentication:** Required. Uses `req.userEmail` to find the user.
+* **Success Response (200):**
     ```json
     {
       "message": "User found",
@@ -96,16 +96,16 @@ These endpoints are for an authenticated employee to manage their *own* data.
     }
     ```
 * **Error Responses:**
-    * [cite_start]`401 Unauthorized`: "Unauthorized: No token provided" [cite: 3]
-    * [cite_start]`404 Not Found`: "No user found" [cite: 3]
+    * `401 Unauthorized`: "Unauthorized: No token provided"
+    * `404 Not Found`: "No user found"
 
 ### 2. Update Employee Details
 
-* [cite_start]**`PUT /update-emp-details`** [cite: 6]
-* [cite_start]**Description:** Updates the personal details (name, city, state, pincode) for the authenticated user[cite: 2, 3].
-* **Authentication:** Required. [cite_start]Uses `req.userEmail` to find the user[cite: 3, 6].
-* [cite_start]**Middleware:** `validateUpdateRequest` [cite: 6] [cite_start](Validates against `UpdateEmpInputSchema` [cite: 1]).
-* [cite_start]**Request Body (`UpdateEmpInputSchema`):** [cite: 1]
+* **`PUT /update-emp-details`**
+* **Description:** Updates the personal details (name, city, state, pincode) for the authenticated user.
+* **Authentication:** Required. Uses `req.userEmail` to find the user.
+* **Middleware:** `validateUpdateRequest` (Validates against `UpdateEmpInputSchema`).
+* **Request Body (`UpdateEmpInputSchema`):**
     ```json
     {
       "name": "Johnathan Doe",
@@ -114,7 +114,7 @@ These endpoints are for an authenticated employee to manage their *own* data.
       "pincode": "54321"
     }
     ```
-* [cite_start]**Success Response (200):** [cite: 3]
+* **Success Response (200):**
     ```json
     {
       "message": "User updated",
@@ -122,18 +122,18 @@ These endpoints are for an authenticated employee to manage their *own* data.
     }
     ```
 * **Error Responses:**
-    * [cite_start]`401 Unauthorized`: "Unauthorized: No token provided" [cite: 3]
+    * `401 Unauthorized`: "Unauthorized: No token provided"
 
 ### 3. Update Employee Status or Policy Acknowledgement
 
-* [cite_start]**`PUT /update-emp-status`** [cite: 6]
-* [cite_start]**`PUT /ack-policies`** [cite: 6]
-* [cite_start]**Description:** Both routes use the same controller (`updateFlags`) to update a specific flag on the employee's profile[cite: 3, 6].
+* **`PUT /update-emp-status`**
+* **`PUT /ack-policies`**
+* **Description:** Both routes use the same controller (`updateFlags`) to update a specific flag on the employee's profile.
     * `/update-emp-status` is used to change the `status` field.
     * `/ack-policies` is used to change the `policy_ack_status` field.
-* **Authentication:** Required. [cite_start]Uses `req.userEmail` to find the user[cite: 3, 6].
-* [cite_start]**Middleware:** `validateEmpStatus` [cite: 6] [cite_start](Validates against `UpdateEmpStatus` [cite: 1]).
-* [cite_start]**Request Body (`UpdateEmpStatusType`):** [cite: 1, 3]
+* **Authentication:** Required. Uses `req.userEmail` to find the user.
+* **Middleware:** `validateEmpStatus` (Validates against `UpdateEmpStatus`).
+* **Request Body (`UpdateEmpStatusType`):**
     ```json
     // Example for /update-emp-status
     {
@@ -147,15 +147,15 @@ These endpoints are for an authenticated employee to manage their *own* data.
       "status_flag": "ACK" // or "NOT_ACK"
     }
     ```
-* [cite_start]**Success Response (200):** [cite: 3]
+* **Success Response (200):**
     ```json
     {
       "message": "updated emp status: [POLICY/EMP_STATUS] to [user_object]"
     }
     ```
 * **Error Responses:**
-    * [cite_start]`401 Unauthorized`: "Unauthorized: No token provided" [cite: 3]
-    * [cite_start]`404 Not Found`: "No body found" [cite: 3]
+    * `401 Unauthorized`: "Unauthorized: No token provided"
+    * `404 Not Found`: "No body found"
 
 ---
 
@@ -167,10 +167,10 @@ These endpoints are for users with an HR role to manage employees, departments, 
 
 #### 1. Add Employee
 
-* [cite_start]**`POST /add-employee`** [cite: 5]
-* [cite_start]**Description:** Creates a new employee record in the system[cite: 4].
-* [cite_start]**Authentication:** HR Role Required[cite: 4, 5].
-* [cite_start]**Request Body (`addEmployeeSchema`):** [cite: 4]
+* **`POST /add-employee`**
+* **Description:** Creates a new employee record in the system.
+* **Authentication:** HR Role Required.
+* **Request Body (`addEmployeeSchema`):**
     ```json
     {
       "name": "Jane Doe",
@@ -182,8 +182,8 @@ These endpoints are for users with an HR role to manage employees, departments, 
       "dep_id": 1
     }
     ```
-* [cite_start]**Side Effects:** Publishes an `employee.created` message to RabbitMQ with the employee's email, role, user ID, and the requesting HR user's ID[cite: 4].
-* [cite_start]**Success Response (201):** [cite: 4]
+* **Side Effects:** Publishes an `employee.created` message to RabbitMQ with the employee's email, role, user ID, and the requesting HR user's ID.
+* **Success Response (201):**
     ```json
     {
       "message": "Employee added",
@@ -191,22 +191,22 @@ These endpoints are for users with an HR role to manage employees, departments, 
     }
     ```
 * **Error Responses:**
-    * [cite_start]`403 Forbidden`: "Unauthorized: Not HR" [cite: 4]
-    * [cite_start]`404 Not Found`: "Role or Department not found" or "HR user not found" [cite: 4]
+    * `403 Forbidden`: "Unauthorized: Not HR"
+    * `404 Not Found`: "Role or Department not found" or "HR user not found"
 
 #### 2. Terminate Employee
 
-* [cite_start]**`PUT /terminate-employee`** [cite: 5]
-* [cite_start]**Description:** Updates an employee's status to `TERMINATED`[cite: 4].
-* [cite_start]**Authentication:** HR Role Required[cite: 4, 5].
-* [cite_start]**Request Body (`terminateEmployeeSchema`):** [cite: 4]
+* **`PUT /terminate-employee`**
+* **Description:** Updates an employee's status to `TERMINATED`.
+* **Authentication:** HR Role Required.
+* **Request Body (`terminateEmployeeSchema`):**
     ```json
     {
       "email": "jane.doe@example.com",
       "reason": "Voluntary resignation"
     }
     ```
-* [cite_start]**Success Response (200):** [cite: 4]
+* **Success Response (200):**
     ```json
     {
       "message": "Employee terminated",
@@ -214,14 +214,14 @@ These endpoints are for users with an HR role to manage employees, departments, 
     }
     ```
 * **Error Responses:**
-    * [cite_start]`403 Forbidden`: "Unauthorized: Not HR" [cite: 4]
+    * `403 Forbidden`: "Unauthorized: Not HR"
 
 #### 3. Get All Employees
 
-* [cite_start]**`GET /get-all-employees`** [cite: 5]
-* [cite_start]**Description:** Retrieves a list of all employees, including their full department and role details[cite: 4].
-* [cite_start]**Authentication:** HR Role Required[cite: 4, 5].
-* [cite_start]**Success Response (200):** [cite: 4]
+* **`GET /get-all-employees`**
+* **Description:** Retrieves a list of all employees, including their full department and role details.
+* **Authentication:** HR Role Required.
+* **Success Response (200):**
     ```json
     {
       "employees": [
@@ -254,16 +254,16 @@ These endpoints are for users with an HR role to manage employees, departments, 
 
 #### 1. Add Department
 
-* [cite_start]**`POST /add-department`** [cite: 5]
-* [cite_start]**Description:** Creates a new department[cite: 4].
-* [cite_start]**Authentication:** HR Role Required[cite: 4, 5].
-* [cite_start]**Request Body (`addDepartmentSchema`):** [cite: 4]
+* **`POST /add-department`**
+* **Description:** Creates a new department.
+* **Authentication:** HR Role Required.
+* **Request Body (`addDepartmentSchema`):**
     ```json
     {
       "dep_name": "Marketing"
     }
     ```
-* [cite_start]**Success Response (201):** [cite: 4]
+* **Success Response (201):**
     ```json
     {
       "message": "Department added",
@@ -274,14 +274,14 @@ These endpoints are for users with an HR role to manage employees, departments, 
     }
     ```
 * **Error Responses:**
-    * [cite_start]`403 Forbidden`: "Unauthorized: Not HR" [cite: 4]
+    * `403 Forbidden`: "Unauthorized: Not HR"
 
 #### 2. Get All Departments
 
-* [cite_start]**`GET /get-all-departments`** [cite: 5]
-* [cite_start]**Description:** Retrieves a list of all available departments[cite: 4].
-* [cite_start]**Authentication:** HR Role Required[cite: 4, 5].
-* [cite_start]**Success Response (200):** [cite: 4]
+* **`GET /get-all-departments`**
+* **Description:** Retrieves a list of all available departments.
+* **Authentication:** HR Role Required.
+* **Success Response (200):**
     ```json
     {
       "departments": [
@@ -293,18 +293,18 @@ These endpoints are for users with an HR role to manage employees, departments, 
 
 #### 3. Edit Department
 
-* [cite_start]**`PUT /edit-department/:dep_id`** [cite: 5]
-* [cite_start]**Description:** Updates the name of a specific department[cite: 4].
-* [cite_start]**Authentication:** HR Role Required[cite: 4, 5].
+* **`PUT /edit-department/:dep_id`**
+* **Description:** Updates the name of a specific department.
+* **Authentication:** HR Role Required.
 * **URL Parameters:**
-    * [cite_start]`dep_id` (integer): The ID of the department to edit[cite: 4].
-* [cite_start]**Request Body (`editDepartmentSchema`):** [cite: 4]
+    * `dep_id` (integer): The ID of the department to edit.
+* **Request Body (`editDepartmentSchema`):**
     ```json
     {
       "dep_name": "Digital Marketing"
     }
     ```
-* [cite_start]**Success Response (200):** [cite: 4]
+* **Success Response (200):**
     ```json
     {
       "message": "Department updated",
@@ -315,17 +315,17 @@ These endpoints are for users with an HR role to manage employees, departments, 
     }
     ```
 * **Error Responses:**
-    * [cite_start]`400 Bad Request`: "Invalid department ID" [cite: 4]
-    * [cite_start]`403 Forbidden`: "Unauthorized: Not HR" [cite: 4]
+    * `400 Bad Request`: "Invalid department ID"
+    * `403 Forbidden`: "Unauthorized: Not HR"
 
 ### Role Management
 
 #### 1. Add Role
 
-* [cite_start]**`POST /add-role`** [cite: 5]
-* [cite_start]**Description:** Creates a new job role and its associated compensation structure[cite: 4].
-* [cite_start]**Authentication:** HR Role Required[cite: 4, 5].
-* [cite_start]**Request Body (`addRoleSchema`):** [cite: 4]
+* **`POST /add-role`**
+* **Description:** Creates a new job role and its associated compensation structure.
+* **Authentication:** HR Role Required.
+* **Request Body (`addRoleSchema`):**
     ```json
     {
       "role_name": "Senior Engineer",
@@ -335,8 +335,8 @@ These endpoints are for users with an HR role to manage employees, departments, 
       "allowance": 20000
     }
     ```
-* [cite_start]**Side Effects:** Publishes a `role.created` message to RabbitMQ with the new role object[cite: 4].
-* [cite_start]**Success Response (201):** [cite: 4]
+* **Side Effects:** Publishes a `role.created` message to RabbitMQ with the new role object.
+* **Success Response (201):**
     ```json
     {
       "message": "Role added",
@@ -351,14 +351,14 @@ These endpoints are for users with an HR role to manage employees, departments, 
     }
     ```
 * **Error Responses:**
-    * [cite_start]`403 Forbidden`: "Unauthorized: Not HR" [cite: 4]
+    * `403 Forbidden`: "Unauthorized: Not HR"
 
 #### 2. Get All Roles
 
-* [cite_start]**`GET /get-all-roles`** [cite: 5]
-* [cite_start]**Description:** Retrieves a list of all available job roles[cite: 4].
-* [cite_start]**Authentication:** HR Role Required[cite: 4, 5].
-* [cite_start]**Success Response (200):** [cite: 4]
+* **`GET /get-all-roles`**
+* **Description:** Retrieves a list of all available job roles.
+* **Authentication:** HR Role Required.
+* **Success Response (200):**
     ```json
     {
       "roles": [
@@ -380,12 +380,12 @@ These endpoints are for users with an HR role to manage employees, departments, 
 
 #### 3. Get Role Info
 
-* [cite_start]**`GET /get-role-info/:role_id`** [cite: 5]
-* [cite_start]**Description:** Retrieves detailed information for a single role by its ID[cite: 4].
-* [cite_start]**Authentication:** HR Role Required[cite: 4, 5].
+* **`GET /get-role-info/:role_id`**
+* **Description:** Retrieves detailed information for a single role by its ID.
+* **Authentication:** HR Role Required.
 * **URL Parameters:**
-    * [cite_start]`role_id` (integer): The ID of the role to retrieve[cite: 4].
-* [cite_start]**Success Response (200):** [cite: 4]
+    * `role_id` (integer): The ID of the role to retrieve.
+* **Success Response (200):**
     ```json
     {
       "role": {
@@ -397,17 +397,17 @@ These endpoints are for users with an HR role to manage employees, departments, 
     }
     ```
 * **Error Responses:**
-    * [cite_start]`400 Bad Request`: "Invalid role ID" [cite: 4]
-    * [cite_start]`404 Not Found`: "Role not found" [cite: 4]
+    * `400 Bad Request`: "Invalid role ID"
+    * `404 Not Found`: "Role not found"
 
 #### 4. Edit Role
 
-* [cite_start]**`PUT /edit-role/:role_id`** [cite: 5]
-* [cite_start]**Description:** Updates the details of an existing job role[cite: 4].
-* [cite_start]**Authentication:** HR Role Required[cite: 4, 5].
+* **`PUT /edit-role/:role_id`**
+* **Description:** Updates the details of an existing job role.
+* **Authentication:** HR Role Required.
 * **URL Parameters:**
-    * [cite_start]`role_id` (integer): The ID of the role to edit[cite: 4].
-* [cite_start]**Request Body (`editRoleSchema`):** [cite: 4]
+    * `role_id` (integer): The ID of the role to edit.
+* **Request Body (`editRoleSchema`):**
     ```json
     {
       "role_name": "Principal Engineer",
@@ -415,8 +415,8 @@ These endpoints are for users with an HR role to manage employees, departments, 
       "base_salary": 140000
     }
     ```
-* [cite_start]**Side Effects:** Publishes a `role.updated` message to RabbitMQ with the updates and role ID[cite: 4].
-* [cite_start]**Success Response (200):** [cite: 4]
+* **Side Effects:** Publishes a `role.updated` message to RabbitMQ with the updates and role ID.
+* **Success Response (200):**
     ```json
     {
       "message": "Role updated",
@@ -424,18 +424,18 @@ These endpoints are for users with an HR role to manage employees, departments, 
     }
     ```
 * **Error Responses:**
-    * [cite_start]`400 Bad Request`: "Invalid role ID" [cite: 4]
-    * [cite_start]`403 Forbidden`: "Unauthorized: Not HR" [cite: 4]
+    * `400 Bad Request`: "Invalid role ID"
+    * `403 Forbidden`: "Unauthorized: Not HR"
 
 ### Payroll
 
 #### 1. Initiate Payroll
 
-* [cite_start]**`GET /initiate-payroll`** [cite: 5]
-* **Description:** Triggers the payroll process. [cite_start]It calculates the number of employees in each role and publishes a `payroll.initiated` message with this data[cite: 4].
-* [cite_start]**Authentication:** Required[cite: 5]. [cite_start](Note: This route does *not* have the `validateHR` middleware [cite: 5]).
-* [cite_start]**Side Effects:** Publishes a `payroll.initiated` message to the `PAYROLL_EXCHANGE` in RabbitMQ[cite: 4].
-* [cite_start]**Success Response (200):** [cite: 4]
+* **`GET /initiate-payroll`**
+* **Description:** Triggers the payroll process. It calculates the number of employees in each role and publishes a `payroll.initiated` message with this data.
+* **Authentication:** Required. (Note: This route does *not* have the `validateHR` middleware).
+* **Side Effects:** Publishes a `payroll.initiated` message to the `PAYROLL_EXCHANGE` in RabbitMQ.
+* **Success Response (200):**
     ```json
     {
       "message": "Payroll initiated",
