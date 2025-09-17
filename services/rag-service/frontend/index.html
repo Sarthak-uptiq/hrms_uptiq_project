@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-R8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Policy Bot</title>
+    <style>
+        /* --- Basic Styling --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #chat-container {
+            width: 90%;
+            max-width: 600px;
+            height: 80vh;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+            background-color: #007bff;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        /* --- Chat Window --- */
+        #chat-window {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 20px;
+            line-height: 1.5;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            background-color: #e9ecef;
+            color: #333;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        .bot-message.loading {
+            font-style: italic;
+            color: #666;
+        }
+        
+        .bot-message.error {
+            background-color: #ffebee;
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        /* --- Input Area --- */
+        #input-area {
+            display: flex;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            font-size: 1rem;
+            margin-right: 10px;
+        }
+
+        #send-btn {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        #send-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="chat-container">
+        <h1>HR Policy Bot 🤖</h1>
+        <div id="chat-window">
+            <div class="message bot-message">
+                Hello! I'm the HR Policy Bot. Ask me questions about vacation, sick leave, dress code, and more.
+            </div>
+        </div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Ask about company policies...">
+            <button id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // --- JavaScript Logic ---
+        
+        // Get references to the HTML elements
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        
+        // Define the backend API endpoint
+        const API_ENDPOINT = 'http://127.0.0.1:5000/chat';
+
+        // Add event listeners for the send button and 'Enter' key
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        /**
+         * Appends a new message to the chat window.
+         * @param {string} text - The message content.
+         * @param {string} sender - 'user' or 'bot'.
+         * @param {string} [id] - An optional ID for the message element.
+         * @param {string} [type] - 'error' or 'loading'.
+         */
+        function addMessage(text, sender, id = null, type = null) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message', `${sender}-message`);
+            
+            if (id) {
+                messageElement.id = id;
+            }
+            if (type) {
+                messageElement.classList.add(type);
+            }
+            
+            messageElement.textContent = text;
+            chatWindow.appendChild(messageElement);
+            
+            // Auto-scroll to the latest message
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        /**
+         * Handles sending the user's message to the backend.
+         */
+        async function sendMessage() {
+            const query = userInput.value.trim();
+            if (query === "") {
+                return; // Don't send empty messages
+            }
+
+            // 1. Display the user's message immediately
+            addMessage(query, 'user');
+            
+            // 2. Clear the input field
+            userInput.value = '';
+            
+            // 3. Show a "typing..." indicator
+            const loadingId = 'loading-indicator';
+            addMessage('HR Bot is typing...', 'bot', loadingId, 'loading');
+
+            try {
+                // 4. Send the query to the backend API
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query: query }),
+                });
+
+                // Remove the "typing..." indicator
+                document.getElementById(loadingId).remove();
+
+                if (!response.ok) {
+                    throw new Error(`Server error: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                // 5. Display the bot's final answer
+                addMessage(data.answer, 'bot');
+
+            } catch (error) {
+                // Handle errors (e.g., backend is down)
+                console.error('Error fetching bot response:', error);
+                
+                // Make sure loading indicator is gone
+                const loadingElement = document.getElementById(loadingId);
+                if (loadingElement) {
+                    loadingElement.remove();
+                }
+                
+                // 6. Display an error message in the chat
+                addMessage(`Error: Could not connect to the HR Bot. Please try again later.`, 'bot', null, 'error');
+            }
+        }
+    </script>
+
+</body>
+</html>

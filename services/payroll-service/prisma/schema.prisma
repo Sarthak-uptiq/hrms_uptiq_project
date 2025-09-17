@@ -6,10 +6,36 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+
+model TaxSlab {
+  id                 Int     @id @default(autoincrement())
+  tax_slab_min       Float   @unique
+  tax_slab_max       Float   @unique
+  deduction_percentage Float @unique
+}
+
+model RolesProjection {
+  role_id   Int     @id
+  role_name String @unique
+  total_ctc Float
+  allowance Float
+  bonus     Float
+  base_salary      Float
+}
+
+
+model Payroll {
+  id             Int      @id @default(autoincrement())
+  total_employees Int
+  gross_amount   Float
+  net_amount     Float
+  status         String   @default("PENDING")
+  createdAt      DateTime @default(now())
 }

@@ -12,6 +12,6 @@ export class NotificationRegistry {
   }
 
   getStrategies(eventType: EventType): INotification[] {
-    return this.strategyRegistry[eventType] ?? [];
+    return this.strategyRegistry[eventType];
   }
 }

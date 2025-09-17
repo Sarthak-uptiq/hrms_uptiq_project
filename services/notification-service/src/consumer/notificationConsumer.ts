@@ -5,7 +5,6 @@ import { NotificationManager } from "../notification_strategy/NotificationManage
 
 const QUEUE_NAME = "notification_queue";
 
-
 export const notificationConsumer = async () => {
     try {   
         await connectRabbitMQ();

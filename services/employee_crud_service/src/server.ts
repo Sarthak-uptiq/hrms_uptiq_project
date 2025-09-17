@@ -5,12 +5,12 @@ import empDetailsRouter from "./router/emp_details_routes.ts";
 import empDocsRouter from "./router/emp_docs_routes.ts";
 import hrCrudRoutes from "./router/hr_crud_routes.ts";
 import { errorHandler } from "./middleware/errorHandler.ts";
-import { connectRabbitMQ } from "./utils/rabbitmq.ts";
+import { boot } from "./utils/bootConnection.ts";
 
 dotenv.config();
 
 try{
-  await connectRabbitMQ();
+  await boot();
 } catch(err){
   console.error("Failed to connect to RabbitMQ", err);
 }

@@ -13,9 +13,11 @@ import {
   getRoleInfoController,
   editRoleController,
   editDepartmentController,
+  initiaPayrollController,
 } from "../controller/hr_crud_controller.ts";
 
 const router = Router();
+
 
 router.post("/add-employee", authenticateRequest, validateHR, addEmployeeController);
 router.put("/terminate-employee", authenticateRequest, validateHR, terminateEmployeeController);
@@ -27,6 +29,7 @@ router.get("/get-all-roles", authenticateRequest, validateHR, getAllRolesControl
 router.get("/get-role-info/:role_id", authenticateRequest, validateHR, getRoleInfoController);
 router.put("/edit-role/:role_id", authenticateRequest, validateHR, editRoleController);
 router.put("/edit-department/:dep_id", authenticateRequest, validateHR, editDepartmentController);
+router.get("/initiate-payroll", authenticateRequest, initiaPayrollController);
 router.use(errorHandler);
 
 export default router;

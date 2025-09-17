@@ -1,4 +1,4 @@
-import { editDepartmentSchema, editRoleSchema, type editDepartmentSchemaType, type editRoleSchemaType } from "../scehma/hr.schema.ts";
+import { editDepartmentSchema, editRoleSchema, type addRoleSchemaType, type editDepartmentSchemaType, type editRoleSchemaType } from "../scehma/hr.schema.ts";
 import { prisma } from "../utils/utils.ts";
 
 export async function isHR(email: string) {
@@ -103,7 +103,7 @@ export async function getRoleInfo(role_id: number) {
   });
 }
 
-export async function editRole(role_id: number, updates: 
+export async function editRole(role_id: number, updates:
   {
     role_name?: string;
     total_ctc?: number;
@@ -121,5 +121,11 @@ export async function editDepartment(dep_id: number, updates: { dep_name: string
   return prisma.department.update({
     where: { dep_id },
     data: updates,
+  });
+}
+
+export async function getEmpRoleCount(role_id: number) {
+  return prisma.employee.count({
+    where: { role_id }
   });
 }

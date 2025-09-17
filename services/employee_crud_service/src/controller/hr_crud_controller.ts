@@ -21,9 +21,11 @@ import {
   getAllRoles,
   editRole,
   editDepartment,
+  getEmpRoleCount,
 } from "../repository/hr_crud_repository.ts";
-import { publishEmpAddMessage } from "../utils/rabbitmq.ts";
+import { publishMessage } from "../utils/rabbitmq.ts";
 import { request } from "http";
+import { EXCHANGE_NAME, PAYROLL_EXCHANGE } from "../constants.ts";
 
 export const addEmployeeController = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -32,7 +34,7 @@ export const addEmployeeController = async (req: Request, res: Response, next: N
     const hr_email = req.userEmail;
     console.log("HR Email:", hr_email);
 
-    if(!hr_email){
+    if (!hr_email) {
       return res.status(403).json({ message: "Unauthorized: Not HR" });
     }
 
@@ -70,13 +72,14 @@ export const addEmployeeController = async (req: Request, res: Response, next: N
     //     Authorization: `Bearer ${req.cookies.auth_token}`,
     //   }
     // });
-    
-    publishEmpAddMessage("employee.created", {
+
+    publishMessage(EXCHANGE_NAME, "employee.created", {
       email: employee.email,
       role: role.role_id === 3 ? "HR" : "EMPLOYEE",
       user_id: employee.emp_id,
       requested_by: hrUser.emp_id
     });
+
     return res.status(201).json({ message: "Employee added", employee });
   } catch (err) {
     next(err);
@@ -89,7 +92,7 @@ export const terminateEmployeeController = async (req: Request, res: Response, n
 
     const hr_email = req.userEmail;
 
-    if(!hr_email){
+    if (!hr_email) {
       return res.status(403).json({ message: "Unauthorized: Not HR" });
     }
 
@@ -118,7 +121,7 @@ export const addDepartmentController = async (req: Request, res: Response, next:
 
     const hr_email = req.userEmail;
 
-    if(!hr_email){
+    if (!hr_email) {
       return res.status(403).json({ message: "Unauthorized: Not HR" });
     }
 
@@ -138,7 +141,7 @@ export const addRoleController = async (req: Request, res: Response, next: NextF
 
     const hr_email = req.userEmail;
 
-    if(!hr_email){
+    if (!hr_email) {
       return res.status(403).json({ message: "Unauthorized: Not HR" });
     }
 
@@ -153,6 +156,11 @@ export const addRoleController = async (req: Request, res: Response, next: NextF
       bonus: body.bonus,
       allowance: body.allowance,
     });
+
+    publishMessage(EXCHANGE_NAME, "role.created", {
+      role: role
+    });
+
     return res.status(201).json({ message: "Role added", role });
   } catch (err) {
     next(err);
@@ -206,7 +214,7 @@ export const editRoleController = async (req: Request, res: Response, next: Next
 
     const hr_email = req.userEmail;
 
-    if(!hr_email){
+    if (!hr_email) {
       return res.status(403).json({ message: "Unauthorized: Not HR" });
     }
 
@@ -215,6 +223,11 @@ export const editRoleController = async (req: Request, res: Response, next: Next
     }
 
     const role = await editRole(role_id, updates);
+
+    publishMessage(EXCHANGE_NAME, "role.updated", {
+      role: req.body as Partial<addRoleSchemaType>,
+      role_id: role.role_id
+    });
     return res.status(200).json({ message: "Role updated", role });
   } catch (err) {
     next(err);
@@ -232,7 +245,7 @@ export const editDepartmentController = async (req: Request, res: Response, next
 
     const hr_email = req.userEmail;
 
-    if(!hr_email){
+    if (!hr_email) {
       return res.status(403).json({ message: "Unauthorized: Not HR" });
     }
 
@@ -246,3 +259,29 @@ export const editDepartmentController = async (req: Request, res: Response, next
     next(err);
   }
 };
+
+export const initiaPayrollController = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const all_roles = await getAllRoles();
+
+    const payload = new Array();
+
+    for (const role of all_roles) {
+      const count = await getEmpRoleCount(role.role_id);
+
+      payload.push({
+        role_name: role.role_name,
+        role_emp_count: count
+      });
+    }
+
+    publishMessage(PAYROLL_EXCHANGE, "payroll.initiated", payload);
+
+    return res.status(200).json({
+      message: "Payroll initiated",
+      payload: payload
+    });
+  } catch (error) {
+    next(error);
+  }
+}

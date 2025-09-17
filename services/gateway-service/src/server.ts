@@ -49,6 +49,14 @@ app.use('/api/hr', createProxyMiddleware({
   },
 }));
 
+app.use('/api/payroll', createProxyMiddleware({
+  target: 'http://localhost:5005',
+  changeOrigin: true,
+  pathRewrite: {
+    '^/api/payroll': '/api/payroll',
+  },
+}));
+
 app.get('/', (req: Request, res: Response) => {
   res.send('Gateway Service Running');
 });
