@@ -1,8 +1,8 @@
-import { addPayrollController } from "../controller/payroll_controller.ts";
-import { getAllTaxSlabs } from "../repository/payroll_repository.ts";
-import { getAllRoles } from "../repository/role_event_repository.ts";
-import type { PayRollEventSchemaType, PayrollSchemaType } from "../schema/payroll.schema.ts";
-import type { IEventConsumer } from "./IEventConsumer.ts";
+import { addPayrollController } from "../controller/payroll_controller.js";
+import { getAllTaxSlabs } from "../repository/payroll_repository.js";
+import { getAllRoles } from "../repository/role_event_repository.js";
+import type { PayRollEventSchemaType, PayrollSchemaType } from "../schema/payroll.schema.js";
+import type { IEventConsumer } from "./IEventConsumer.js";
 
 export class PayrollEventConsumer implements IEventConsumer {
     async consumeEvent(event: string, payload: PayRollEventSchemaType[]): Promise<any> {

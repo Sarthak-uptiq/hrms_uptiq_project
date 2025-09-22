@@ -1,5 +1,5 @@
-import { addRole, getAllRoles, updateRole } from "../repository/role_event_repository.ts";
-import type { AddRoleEventType, UpdateRoleEventType } from "../schema/role_crud_schema.schema.ts"
+import { addRole, getAllRoles, updateRole } from "../repository/role_event_repository.js";
+import type { AddRoleEventType, UpdateRoleEventType } from "../schema/role_crud_schema.schema.js"
 
 
 export const updateRoleController = async (payload: any, role_id: number) => {

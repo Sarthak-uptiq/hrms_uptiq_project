@@ -1,5 +1,5 @@
-import type { PayrollSchemaType } from "../schema/payroll.schema.ts";
-import {prisma} from "../utils/helper.ts";
+import type { PayrollSchemaType } from "../schema/payroll.schema.js";
+import {prisma} from "../utils/helper.js";
 
 export const getAllPayrolls = async () => {
     return prisma.payroll.findMany();

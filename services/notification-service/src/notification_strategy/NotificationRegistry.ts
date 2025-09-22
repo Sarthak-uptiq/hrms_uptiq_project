@@ -1,4 +1,4 @@
-import type { INotification } from "./INotification.ts";
+import type { INotification } from "./INotification.js";
 
 export type EventType = "user.registered";
 

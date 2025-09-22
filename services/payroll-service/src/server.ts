@@ -1,9 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import router from "./router/router.ts";
-import { errorHandler } from "./middleware/errorHandler.ts";
-import { bootPayrollConsumer, bootRoleConsumer, connect } from "./utils/bootConsumer.ts";
+import router from "./router/router.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { bootPayrollConsumer, bootRoleConsumer, connect } from "./utils/bootConsumer.js";
 
 dotenv.config();
 

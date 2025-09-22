@@ -1,21 +1,21 @@
 import type {
   UpdateEmpStatusType,
-} from "../scehma/details.schema.ts";
+} from "../scehma/details.schema.js";
 import type { Request, Response, NextFunction } from "express";
 import {
   getEmpDetails,
   updateEmpDetails,
   updateAckFlag,
-} from "../repository/emp_details_repository.ts";
+} from "../repository/emp_details_repository.js";
 
-import type { addEmployeeSchemaType } from "../scehma/hr.schema.ts";
+import type { addEmployeeSchemaType } from "../scehma/hr.schema.js";
 
 export const getAllDetails = async (req: Request, res: Response, next: NextFunction) => {
 
   try {
-    const email =req.userEmail;
-  
-    if(!email){
+    const email = req.userEmail;
+
+    if (!email) {
       return res.status(401).json("Unauthorized: No token provided");
     }
 
@@ -41,9 +41,9 @@ export const updateDetails = async (req: Request, res: Response, next: NextFunct
 
     const email = req.userEmail;
 
-    if(!email){
+    if (!email) {
       return res.status(401).json("Unauthorized: No token provided");
-    } 
+    }
 
     const user = await updateEmpDetails(email, body);
 
@@ -68,8 +68,8 @@ export const updateFlags = async (req: Request, res: Response, next: NextFunctio
     const body: UpdateEmpStatusType = req.body as UpdateEmpStatusType;
 
     const email = req.userEmail;
-  
-    if(!email){
+
+    if (!email) {
       return res.status(401).json("Unauthorized: No token provided");
     }
 

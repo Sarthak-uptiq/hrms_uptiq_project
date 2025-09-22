@@ -1,5 +1,5 @@
 import { PrismaClient} from "@prisma/client";
-import type { NotificationSchemaType } from "../schema/notification.schema.ts";
+import type { NotificationSchemaType } from "../schema/notification.schema.js";
 
 const prisma = new PrismaClient();
 

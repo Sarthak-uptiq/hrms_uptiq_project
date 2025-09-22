@@ -5,8 +5,8 @@ import type {
   addEmployeeSchemaType,
   addRoleSchemaType,
   terminateEmployeeSchemaType,
-} from "../scehma/hr.schema.ts";
-import { editDepartmentSchema, editRoleSchema } from "../scehma/hr.schema.ts";
+} from "../scehma/hr.schema.js";
+import { editDepartmentSchema, editRoleSchema } from "../scehma/hr.schema.js";
 import {
   isHR,
   getRoleById,
@@ -22,10 +22,10 @@ import {
   editRole,
   editDepartment,
   getEmpRoleCount,
-} from "../repository/hr_crud_repository.ts";
-import { publishMessage } from "../utils/rabbitmq.ts";
+} from "../repository/hr_crud_repository.js";
+import { publishMessage } from "../utils/rabbitmq.js";
 import { request } from "http";
-import { EXCHANGE_NAME, PAYROLL_EXCHANGE } from "../constants.ts";
+import { EXCHANGE_NAME, PAYROLL_EXCHANGE } from "../constants.js";
 
 export const addEmployeeController = async (req: Request, res: Response, next: NextFunction) => {
   try {

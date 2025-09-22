@@ -1,5 +1,5 @@
-import { EXCHANGE_NAME, EXCHANGE_TYPE, PAYROLL_EXCHANGE } from "../constants.ts";
-import { assertExchange, connectRabbitMQ, getChannel } from "./rabbitmq.ts";
+import { EXCHANGE_NAME, EXCHANGE_TYPE, PAYROLL_EXCHANGE } from "../constants.js";
+import { assertExchange, connectRabbitMQ, getChannel } from "./rabbitmq.js";
 
 
 export const boot = async () => {

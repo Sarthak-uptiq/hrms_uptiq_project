@@ -1,7 +1,7 @@
-import { bindQueue } from "./bindQueue.ts";
-import { consumeEvent } from "./consumeEvent.ts";
-import { connectRabbitMQ, getChannel, EXCHANGE_NAME } from "./connectMQ.ts";
-import {register} from "../controller/auth_controller.ts";
+import { bindQueue } from "./bindQueue.js";
+import { consumeEvent } from "./consumeEvent.js";
+import { connectRabbitMQ, getChannel, EXCHANGE_NAME } from "./connectMQ.js";
+import {register} from "../controller/auth_controller.js";
 
 const QUEUE_NAME = "auth_service_queue";
 

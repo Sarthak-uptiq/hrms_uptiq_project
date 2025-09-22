@@ -1,6 +1,6 @@
 import type { INotification } from "./INotification.ts";
-import type { NotificationSchemaType } from "../schema/notification.schema.ts";
-import { createNotificationController } from "../controller/notification_controller.ts";
+import type { NotificationSchemaType } from "../schema/notification.schema.js";
+import { createNotificationController } from "../controller/notification_controller.js";
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 

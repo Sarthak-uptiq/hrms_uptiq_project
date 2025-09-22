@@ -1,6 +1,6 @@
 import type{ Request, Response, NextFunction } from "express";
-import type{ UserInput, RegisterSchemaType } from "../schema/auth.schema.ts";
-import { UserSchema, RegisterSchema } from "../schema/auth.schema.ts";
+import type{ UserInput, RegisterSchemaType } from "../schema/auth.schema.js";
+import { UserSchema, RegisterSchema } from "../schema/auth.schema.js";
 
 export const validateSchema = (req: Request, res: Response, next: NextFunction) => {
 

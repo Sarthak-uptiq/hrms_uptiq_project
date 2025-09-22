@@ -6,7 +6,7 @@ import {
   addRoleSchema,
   editRoleSchema,
   editDepartmentSchema,
-} from "../scehma/hr.schema.ts";
+} from "../scehma/hr.schema.js";
 
 const schemaMap: Record<string, any> = {
   "/hr/add-employee": addEmployeeSchema,

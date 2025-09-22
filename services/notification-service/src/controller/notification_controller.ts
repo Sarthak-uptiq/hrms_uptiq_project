@@ -1,5 +1,5 @@
-import { createNotification, getNotificationType } from "../repository/notification_repository.ts";
-import type { NotificationSchemaType } from "../schema/notification.schema.ts";
+import { createNotification, getNotificationType } from "../repository/notification_repository.js";
+import type { NotificationSchemaType } from "../schema/notification.schema.js";
 
 
 export const createNotificationController = async (payload: NotificationSchemaType, type: string) => {

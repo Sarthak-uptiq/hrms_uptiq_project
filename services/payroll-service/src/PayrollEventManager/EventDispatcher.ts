@@ -1,4 +1,4 @@
-import { EventRegistry, type EventType } from "./EventRegistry.ts";
+import { EventRegistry, type EventType } from "./EventRegistry.js";
 
 
 export class EventDispatcher {

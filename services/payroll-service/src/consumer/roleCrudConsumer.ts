@@ -1,5 +1,5 @@
-import { eventConsumer } from "./eventConsumer.ts";
-import { COMPANY_EXCHANGE, ROLE_QUEUE_NAME, ROLE_ROUTING_KEY } from "../constants.ts";
+import { eventConsumer } from "./eventConsumer.js";
+import { COMPANY_EXCHANGE, ROLE_QUEUE_NAME, ROLE_ROUTING_KEY } from "../constants.js";
 
 export const roleConsumer = async () => {
     try {

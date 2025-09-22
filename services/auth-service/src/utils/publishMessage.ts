@@ -1,4 +1,4 @@
-import { getChannel, EXCHANGE_NAME } from "./connectMQ.ts";
+import { getChannel, EXCHANGE_NAME } from "./connectMQ.js";
 
 
 export function publishUserCreatedMessage(routingKey: string, message: any) {

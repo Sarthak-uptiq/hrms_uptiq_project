@@ -1,11 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import { errorHandler } from "./middleware/errorHandler.ts";
-import { userConsumer } from "./utils/rabitMQConfig.ts";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { userConsumer } from "./utils/rabitMQConfig.js";
 
 
-import authRoutes from "./router/auth_routes.ts"; 
+import authRoutes from "./router/auth_routes.js"; 
 
 dotenv.config();
 

@@ -1,8 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import { errorHandler } from "./middleware/errorHandler.ts";
-import { notificationConsumer } from "./consumer/notificationConsumer.ts";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { notificationConsumer } from "./consumer/notificationConsumer.js";
 
 dotenv.config();
 

@@ -1,5 +1,5 @@
-import { editDepartmentSchema, editRoleSchema, type addRoleSchemaType, type editDepartmentSchemaType, type editRoleSchemaType } from "../scehma/hr.schema.ts";
-import { prisma } from "../utils/utils.ts";
+import { editDepartmentSchema, editRoleSchema, type addRoleSchemaType, type editDepartmentSchemaType, type editRoleSchemaType } from "../scehma/hr.schema.js";
+import { prisma } from "../utils/utils.js";
 
 export async function isHR(email: string) {
   const hr = await prisma.employee.findUnique({

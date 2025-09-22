@@ -1,2 +1,11 @@
 username = hrms_admin
 password = hrms_admin_pass
+
+
+avaza 
+
+twillio
+
+pass: euiP3kFY&s6;By"
+recovery code: 8DZ6G7XM31LZG18Z31E62PQW
+

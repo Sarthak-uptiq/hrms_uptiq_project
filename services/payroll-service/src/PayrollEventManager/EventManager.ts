@@ -1,8 +1,8 @@
-import { PAYROLL_INITIATE_EVENT, ROLE_EVENTS } from "../constants.ts";
-import { CompanyEventConsumer } from "./CompanyEventConsumer.ts";
-import { EventDispatcher } from "./EventDispatcher.ts";
-import { EventRegistry } from "./EventRegistry.ts";
-import { PayrollEventConsumer } from "./PayrollEventConsumer.ts";
+import { PAYROLL_INITIATE_EVENT, ROLE_EVENTS } from "../constants.js";
+import { CompanyEventConsumer } from "./CompanyEventConsumer.js";
+import { EventDispatcher } from "./EventDispatcher.js";
+import { EventRegistry } from "./EventRegistry.js";
+import { PayrollEventConsumer } from "./PayrollEventConsumer.js";
 
 
 export class EventManager {

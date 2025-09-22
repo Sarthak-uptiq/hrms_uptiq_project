@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
-import { updateRole, addRole, deleteRole } from "../repository/role_event_repository.ts";
-import { addPayroll, getAllPayrolls } from "../repository/payroll_repository.ts";
-import type { PayrollSchemaType } from "../schema/payroll.schema.ts";
+import { updateRole, addRole, deleteRole } from "../repository/role_event_repository.js";
+import { addPayroll, getAllPayrolls } from "../repository/payroll_repository.js";
+import type { PayrollSchemaType } from "../schema/payroll.schema.js";
 
 
 

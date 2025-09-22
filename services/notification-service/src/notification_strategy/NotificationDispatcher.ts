@@ -1,5 +1,5 @@
-import { NotificationRegistry } from "./NotificationRegistry.ts";
-import type { NotificationSchemaType } from "../schema/notification.schema.ts";
+import { NotificationRegistry } from "./NotificationRegistry.js";
+import type { NotificationSchemaType } from "../schema/notification.schema.js";
 
 export class NotificationDispatcher {
     private registry: NotificationRegistry;

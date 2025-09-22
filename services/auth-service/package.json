@@ -5,8 +5,8 @@
   "main": "server.ts",
   "type": "module",
   "scripts": {
-    "start": "node dist/server.ts",
-    "dev": "node src/server.ts",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc"
   },
   "author": "",
@@ -34,6 +34,7 @@
     "jsonwebtoken": "^9.0.2",
     "prisma": "^6.15.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "uuid": "^13.0.0",
     "winston": "^3.17.0",

@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { publicKey } from "../utils/utils.ts";
+import { publicKey } from "../utils/utils.js";
 
 
 export function authenticateRequest(req: Request, res: Response, next: NextFunction) {

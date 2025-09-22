@@ -1,5 +1,5 @@
-import type { IEventConsumer } from "./IEventConsumer.ts";
-import { ROLE_EVENTS, PAYROLL_INITIATE_EVENT } from "../constants.ts"
+import type { IEventConsumer } from "./IEventConsumer.js";
+import { ROLE_EVENTS, PAYROLL_INITIATE_EVENT } from "../constants.js"
 
 export type EventType =
     typeof ROLE_EVENTS.ROLE_CREATE_EVENT |

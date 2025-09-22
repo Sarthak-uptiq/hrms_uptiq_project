@@ -1,8 +1,8 @@
-import type { EventType } from "./EventRegistry.ts";
-import type { IEventConsumer } from "./IEventConsumer.ts";
-import { ROLE_EVENTS } from "../constants.ts";
-import { addRole, updateRole } from "../repository/role_event_repository.ts";
-import { addRoleController, updateRoleController } from "../controller/roles_controller.ts";
+import type { EventType } from "./EventRegistry.js";
+import type { IEventConsumer } from "./IEventConsumer.js";
+import { ROLE_EVENTS } from "../constants.js";
+import { addRole, updateRole } from "../repository/role_event_repository.js";
+import { addRoleController, updateRoleController } from "../controller/roles_controller.js";
 
 export class CompanyEventConsumer implements IEventConsumer {
     async consumeEvent(event: EventType, payload: any): Promise<void> {

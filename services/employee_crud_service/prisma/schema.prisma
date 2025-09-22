@@ -24,6 +24,11 @@ enum Policy_Ack {
   PENDING
 }
 
+enum Archive_Status {
+  RESIGNED 
+  TERMINATED
+}
+
 
 model employee {
   emp_id    String    @id @default(uuid())
@@ -83,4 +88,19 @@ model role {
 
   // back relation
   employees employee[]
+}
+
+
+model employee_archives {
+  emp_id    String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  city      String?
+  state     String?
+  pincode   String?
+  dep_name  String
+  role_name String
+  status    Archive_Status
+
+  createdAt DateTime  @default(now())
 }

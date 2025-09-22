@@ -1,7 +1,7 @@
-import { bindQueue } from "./bindQueue.ts";
-import { consumeEvent } from "./consumeEvent.ts";
-import { connectRabbitMQ, getChannel, EXCHANGE_NAME } from "./connectMQ.ts";
-import { NotificationManager } from "../notification_strategy/NotificationManager.ts";
+import { bindQueue } from "./bindQueue.js";
+import { consumeEvent } from "./consumeEvent.js";
+import { connectRabbitMQ, getChannel, EXCHANGE_NAME } from "./connectMQ.js";
+import { NotificationManager } from "../notification_strategy/NotificationManager.js";
 
 const QUEUE_NAME = "notification_queue";
 

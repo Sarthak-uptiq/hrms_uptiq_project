@@ -1,6 +1,6 @@
-import { connectRabbitMQ } from "../consumer/connectMQ.ts";
-import { payrollConsumer } from "../consumer/payrollConsumer.ts";
-import { roleConsumer } from "../consumer/roleCrudConsumer.ts";
+import { connectRabbitMQ } from "../consumer/connectMQ.js";
+import { payrollConsumer } from "../consumer/payrollConsumer.js";
+import { roleConsumer } from "../consumer/roleCrudConsumer.js";
 
 export const connect = async () => {
   try {

@@ -1,8 +1,8 @@
 
-import { NotificationRegistry } from "./NotificationRegistry.ts";
-import { NotificationDispatcher } from "./NotificationDispatcher.ts";
-import { EmailStrategy } from "./EmailStrategy.ts";
-import type { NotificationSchemaType } from "../schema/notification.schema.ts";
+import { NotificationRegistry } from "./NotificationRegistry.js";
+import { NotificationDispatcher } from "./NotificationDispatcher.js";
+import { EmailStrategy } from "./EmailStrategy.js";
+import type { NotificationSchemaType } from "../schema/notification.schema.js";
 
 export class NotificationManager {
     private dispatcher!: NotificationDispatcher;

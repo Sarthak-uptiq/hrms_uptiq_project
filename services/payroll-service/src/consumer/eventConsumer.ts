@@ -1,8 +1,8 @@
-import { assertExchange } from "./assertExchange.ts";
-import { bindQueue } from "./bindQueue.ts";
-import { connectRabbitMQ, getChannel } from "./connectMQ.ts"
-import { consumeEvent } from "./consumeEvent.ts";
-import { EventManager } from "../PayrollEventManager/EventManager.ts";
+import { assertExchange } from "./assertExchange.js";
+import { bindQueue } from "./bindQueue.js";
+import { connectRabbitMQ, getChannel } from "./connectMQ.js"
+import { consumeEvent } from "./consumeEvent.js";
+import { EventManager } from "../PayrollEventManager/EventManager.js";
 
 export const eventConsumer = async (EXCHANGE_NAME: string, QUEUE_NAME: string, ROUTING_KEY: string) => {
     try {

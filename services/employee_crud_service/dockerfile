@@ -1,53 +1,55 @@
-# --- Stage 1: Build Environment ---
-# Use a Node.js image that matches your development environment.
+# ---- Stage 1: Builder ----
+# This stage installs dependencies, generates the Prisma client, and compiles the TypeScript code.
 FROM node:20-alpine AS builder
-
-# Set the working directory inside the container
-WORKDIR /app
-
-# Install Prisma CLI globally in the build stage to ensure it's available
-RUN npm install -g prisma
-
-# Copy package.json and yarn.lock to leverage Docker caching
-COPY package.json yarn.lock* ./
-
-# Install all dependencies using the lockfile
-RUN yarn install --frozen-lockfile
-
-# Copy the Prisma schema file
-COPY prisma ./prisma/
-
-# Generate the Prisma client. This is crucial for your application to talk to the database.
-RUN prisma generate
-
-# Copy the rest of your application's source code
-COPY . .
-
-# Compile TypeScript to JavaScript using the build script from package.json
-# This will create the /app/dist directory
-RUN yarn build
-
-# --- Stage 2: Production Environment ---
-# Use a slim Node.js image for a smaller and more secure final image
-FROM node:20-alpine
 
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json and yarn.lock again
-COPY package.json yarn.lock* ./
+# Copy package.json and lock file to leverage Docker cache
+COPY package*.json ./
 
-# Install only production dependencies
-RUN yarn install --production --frozen-lockfile
+# Install all dependencies (including devDependencies for building)
+RUN npm install
 
-# Copy the compiled code from the 'builder' stage
+# Copy the Prisma schema file
+COPY prisma ./prisma/
+
+# Generate the Prisma client based on your schema
+RUN npx prisma generate
+
+# Copy the rest of your application source code
+COPY . .
+
+# Copy the private key required by auth_controller.ts
+COPY public.pem .
+
+# Compile TypeScript to JavaScript. The output will be in the 'dist' folder.
+RUN npm run build
+
+
+# ---- Stage 2: Production ----
+# This stage creates the final, lightweight image with only production dependencies and compiled code.
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package.json and lock file again
+COPY package*.json ./
+
+# Install ONLY production dependencies
+RUN npm install --production
+
+# Copy the compiled code from the builder stage
 COPY --from=builder /app/dist ./dist
 
-# Copy the Prisma schema for the runtime environment
-COPY --from=builder /app/prisma ./prisma
+# Copy the generated Prisma client from the builder stage
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 
-# Expose the port your application will run on. From your gateway, this is 5001.
+# Copy the private key from the builder stage
+COPY --from=builder /app/public.pem .
+
+# Expose the port your application will run on
 EXPOSE 5001
 
-# The command to start your application, using the script from package.json
-CMD ["yarn", "start"]
+# Command to run the application (Updated to match your entry point)
+CMD ["node", "dist/server.js"]

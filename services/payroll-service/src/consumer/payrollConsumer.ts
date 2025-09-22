@@ -1,5 +1,5 @@
-import { eventConsumer } from "./eventConsumer.ts";
-import { PAYROLL_EXCHANGE, PAYROLL_INITIATE_EVENT, PAYROLL_QUEUE_NAME } from "../constants.ts";
+import { eventConsumer } from "./eventConsumer.js";
+import { PAYROLL_EXCHANGE, PAYROLL_INITIATE_EVENT, PAYROLL_QUEUE_NAME } from "../constants.js";
 
 export const payrollConsumer = async () => {
     try {

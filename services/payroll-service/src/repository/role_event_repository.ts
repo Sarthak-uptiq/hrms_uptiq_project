@@ -1,5 +1,5 @@
-import { prisma } from "../utils/helper.ts";
-import type { AddRoleEventType } from "../schema/role_crud_schema.schema.ts";
+import { prisma } from "../utils/helper.js";
+import type { AddRoleEventType } from "../schema/role_crud_schema.schema.js";
 
 export const updateRole = async (role_id: number, role: Partial<{ role_name?: string, total_ctc?: number, allowance?: number, base?: number, bonus?: number }>) => {
     return prisma.rolesProjection.update({

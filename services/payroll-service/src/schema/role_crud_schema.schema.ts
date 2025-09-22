@@ -6,7 +6,7 @@ export const UpdateRoleEventSchema = z.object({
     total_ctc: z.number().optional(),
     allowance: z.number().optional(),
     bonus: z.number().optional(),
-    base: z.number().optional()
+    base_salary: z.number().optional()
 });
 
 export type UpdateRoleEventType = z.infer<typeof UpdateRoleEventSchema>;
@@ -17,7 +17,7 @@ export const AddRoleEventSchema = z.object({
     total_ctc: z.number(),
     allowance: z.number(),
     bonus: z.number(),
-    base: z.number()
+    base_salary: z.number()
 });
 
 export type AddRoleEventType = z.infer<typeof AddRoleEventSchema>;

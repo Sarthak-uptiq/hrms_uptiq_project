@@ -2,11 +2,11 @@ import jwt from 'jsonwebtoken';
 import type { JwtPayload } from 'jsonwebtoken';
 import type{Request, Response, NextFunction} from "express";
 import type{ UserInput, RegisterSchemaType } from "../schema/auth.schema.ts";
-import {createUser, findByUserID, findExistingUser } from "../repository/repository.ts";
+import {createUser, findByUserID, findExistingUser } from "../repository/repository.js";
 import bcrypt from "bcrypt";
 import fs from "fs";
 import generator from 'generate-password';
-import { publishUserCreatedMessage } from '../utils/publishMessage.ts';
+import { publishUserCreatedMessage } from '../utils/publishMessage.js';
 
 const EXPIRY: string = process.env.TOKEN_EXPIRY!;
 const privateKey = fs.readFileSync("private.pem", "utf-8");

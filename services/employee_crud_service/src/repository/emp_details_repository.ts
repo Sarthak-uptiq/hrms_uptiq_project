@@ -1,4 +1,4 @@
-import { prisma } from "../utils/utils.ts";
+import { prisma } from "../utils/utils.js";
 import type {
   UpdateEmpSchemaType,
 } from "../scehma/details.schema.ts";

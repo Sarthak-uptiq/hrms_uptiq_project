@@ -1,42 +1,34 @@
 import { Router } from "express";
-import { validateUpdateRequest } from "../middleware/validateUpdate.ts";
-import { validateEmpStatus } from "../middleware/validateStatus.ts";
-import { errorHandler } from "../middleware/errorHandler.ts";
-import { authenticateRequest } from "../middleware/authenticateRequest.ts";
+import { validateUpdateRequest } from "../middleware/validateUpdate.js";
+import { validateEmpStatus } from "../middleware/validateStatus.js";
+import { errorHandler } from "../middleware/errorHandler.js";
+import { authenticateRequest } from "../middleware/authenticateRequest.js";
 import {
   getAllDetails,
   updateDetails,
   updateFlags,
-} from "../controller/emp_details_controller.ts";
+} from "../controller/emp_details_controller.js";
 
 const empDetailRouter = Router();
 
 empDetailRouter.get(
   "/get-all-details",
-  authenticateRequest,
-  getAllDetails,
-  errorHandler
+  getAllDetails
 );
 empDetailRouter.put(
   "/update-emp-details",
-  authenticateRequest,
   validateUpdateRequest,
-  updateDetails, 
-  errorHandler
+  updateDetails
 );
 empDetailRouter.put(
   "/update-emp-status",
-  authenticateRequest,
   validateEmpStatus,
-  updateFlags,
-  errorHandler
+  updateFlags
 );
 empDetailRouter.put(
   "/ack-policies",
-  authenticateRequest,
   validateEmpStatus,
-  updateFlags,
-  errorHandler
+  updateFlags
 );
 
 export default empDetailRouter;

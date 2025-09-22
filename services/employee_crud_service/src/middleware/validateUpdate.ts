@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import { UpdateEmpInputSchema } from "../scehma/details.schema.ts";
-import type { UpdateEmpSchemaType } from "../scehma/details.schema.ts";
+import { UpdateEmpInputSchema } from "../scehma/details.schema.js";
+import type { UpdateEmpSchemaType } from "../scehma/details.schema.js";
 
 export const validateUpdateRequest = (
   req: Request,
