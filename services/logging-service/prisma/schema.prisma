@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum LogAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum Status {
+  SUCESS
+  FAILED
+}
+
+
+model emp_logs {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  action      LogAction // (CREATE, UPDATE, DELETE)
+  employeeId  String    
+  actorId     String  
+  timestamp   DateTime  @default(now()) 
+  status      Status
+  error       String?
+}
+
+model notification_logs {
+  id          String              @id @default(auto()) @map("_id") @db.ObjectId
+  recipientId String              
+  type        String              
+  status      Status  
+  sentAt      DateTime            @default(now())
+  subject     String?             
+  error       String?             // Stores any error message if sending failed
+}
+
+model role_logs {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  action    LogAction // (CREATE, UPDATE, DELETE)
+  roleId    String    
+  actorId   String    
+  timestamp DateTime  @default(now())
+  status    Status
+  error       String?
+}
+
+model dept_logs {
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  action       LogAction // CREATE, UPDATE, DELETE
+  departmentId String    
+  actorId      String    
+  timestamp    DateTime  @default(now())
+  status       Status
+  error       String?
+}

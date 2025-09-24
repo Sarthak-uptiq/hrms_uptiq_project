@@ -1,0 +1,29 @@
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the dependencies file to the working directory
+COPY requirements.txt .
+
+# Install the dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the application source code
+COPY app.py .
+
+# Create a data directory and copy the policy documents into it
+COPY ./data/code_of_conduct.txt ./data/
+COPY ./data/leave_policy.txt ./data/
+COPY ./data/work_from_home_policy.txt ./data/
+
+# Make port 4004 available to the world outside this container
+EXPOSE 4004
+
+# Define environment variables used by the application
+ENV RAG_DATA_PATH=/app/data
+ENV PORT=4004
+
+# Run app.py when the container launches
+CMD ["python", "app.py"]

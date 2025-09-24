@@ -24,7 +24,6 @@ import {
   getEmpRoleCount,
 } from "../repository/hr_crud_repository.js";
 import { publishMessage } from "../utils/rabbitmq.js";
-import { request } from "http";
 import { EXCHANGE_NAME, PAYROLL_EXCHANGE } from "../constants.js";
 
 export const addEmployeeController = async (req: Request, res: Response, next: NextFunction) => {

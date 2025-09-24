@@ -16,6 +16,7 @@ datasource db {
 enum Emp_Status {
   ACTIVE
   INACTIVE
+  RESIGN_REQUESTED
   TERMINATED
 }
 

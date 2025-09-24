@@ -1,5 +1,5 @@
-import { getChannel } from "./connectMQ.ts";
-import { EXCHANGE_TYPE } from "../constants.ts";
+import { getChannel } from "./connectMQ.js";
+import { EXCHANGE_TYPE } from "../utils/constants.js";
 
 
 export async function assertExchange(EXCHANGE_NAME: string) {

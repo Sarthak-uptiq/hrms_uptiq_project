@@ -1,0 +1,203 @@
+# Docker Compose file for the complete HRMS Application
+# Version: 3.8
+
+services:
+  # --------------------
+  # Infrastructure Services
+  # --------------------
+
+  # Shared PostgreSQL Database for Auth, Employee, and Notification services
+  hrms-db:
+    image: postgres:14-alpine
+    container_name: hrms-db
+    restart: always
+    ports:
+      - "5342:5432" # Expose for local debugging
+    environment:
+      POSTGRES_USER: hrms_admin
+      POSTGRES_PASSWORD: hrms_admin_pass
+      POSTGRES_DB: auth_service_db # Initial DB, others will be created by services
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - hrms-network
+
+  # Dedicated PostgreSQL Database for the Payroll Service
+  payroll_postgres:
+    image: postgres:14-alpine
+    container_name: payroll_postgres
+    restart: always
+    ports:
+      - "5432:5432" # Use a different host port to avoid conflicts
+    environment:
+      POSTGRES_USER: hrms_payroll_service
+      POSTGRES_PASSWORD: payrollsuperuser
+      POSTGRES_DB: payroll_db
+    volumes:
+      - payroll_data:/var/lib/postgresql/data
+    networks:
+      - hrms-network
+
+  # MongoDB for the Logging Service
+  mongo_db:
+    image: mongo:latest
+    container_name: mongo_db
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: hrmsadmin
+      MONGO_INITDB_ROOT_PASSWORD: hrmssuperuser
+    volumes:
+      - mongodb:/data/db
+    networks:
+      - hrms-network
+
+  # RabbitMQ Message Broker
+  hrms-rabbitmq:
+    image: rabbitmq:3.11-management
+    container_name: hrms-rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: hrms_broker
+      RABBITMQ_DEFAULT_PASS: hrms_broker_password
+    networks:
+      - hrms-network
+
+  # --------------------
+  # Application Microservices
+  # --------------------
+
+  # Authentication Service
+  auth_service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth_service
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      PORT: 5000
+      TOKEN_EXPIRY: 3600
+      DATABASE_URL: "postgresql://hrms_admin:hrms_admin_pass@hrms-db:5432/auth_service_db"
+      RABBITMQ_URL: "amqp://hrms_broker:hrms_broker_password@hrms-rabbitmq:5672"
+    volumes:
+      - ./private.pem:/app/private.pem:ro 
+    depends_on:
+      - hrms-db
+      - hrms-rabbitmq
+    networks:
+      - hrms-network
+
+  employee_crud_service:
+    build:
+      context: ./employee_crud_service
+      dockerfile: Dockerfile
+    container_name: employee_crud_service
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      PORT: 5001
+      DATABASE_URL: "postgresql://hrms_admin:hrms_admin_pass@hrms-db:5432/emp_service_db"
+      RABBITMQ_URL: "amqp://hrms_broker:hrms_broker_password@hrms-rabbitmq:5672"
+    volumes:
+      - ./public.pem:/app/public.pem:ro # Mount public key as read-only
+    depends_on:
+      - hrms-db
+      - hrms-rabbitmq
+    networks:
+      - hrms-network
+
+  # Payroll Service
+  payroll_service:
+    build:
+      context: ./payroll-service
+      dockerfile: Dockerfile
+    container_name: payroll_service
+    restart: always
+    ports:
+      - "5005:5005"
+    environment:
+      PORT: 5005
+      DATABASE_URL: "postgresql://hrms_payroll_service:payrollsuperuser@payroll_postgres:5432/payroll_db"
+      RABBITMQ_URL: "amqp://hrms_broker:hrms_broker_password@hrms-rabbitmq:5672"
+    volumes:
+      - ./public.pem:/app/public.pem:ro # Mount public key as read-only
+    depends_on:
+      - payroll_postgres
+      - hrms-rabbitmq
+    networks:
+      - hrms-network
+
+  # Notification Service
+  notification_service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: notification_service
+    restart: always
+    ports:
+      - "5003:5003"
+    environment:
+      PORT: 5003
+      DATABASE_URL: "postgresql://hrms_admin:hrms_admin_pass@hrms-db:5432/notification_service_db"
+      RABBITMQ_URL: "amqp://hrms_broker:hrms_broker_password@hrms-rabbitmq:5672"
+      SENDER_MAIL: "sarthak@uptiq.ai"
+      SENDER_MAIL_PASSWORD: "hxefmqexwfofmrgm"
+    depends_on:
+      - hrms-db
+      - hrms-rabbitmq
+    networks:
+      - hrms-network
+
+  # Logging Service
+  # logging_service:
+  #   build:
+  #     context: ./logging-service
+  #     dockerfile: Dockerfile
+  #   container_name: logging_service
+  #   restart: always
+  #   environment:
+  #     DATABASE_URL: "mongodb://hrmsadmin:hrmssuperuser@mongo_db:27017/log-service-db?authSource=admin"
+  #     RABBITMQ_URL: "amqp://hrms_broker:hrms_broker_password@hrms-rabbitmq:5672"
+  #   depends_on:
+  #     - mongo_db
+  #     - hrms-rabbitmq
+  #   networks:
+  #     - hrms-network
+
+  # --- NEW: RAG Service for AI Chat ---
+  rag_service:
+    build:
+      context: ./rag-service  # Assumes rag-service directory contains Dockerfile, app.py, etc.
+      dockerfile: Dockerfile
+    container_name: rag_service
+    restart: always
+    ports:
+      - "4004:4004"
+    environment:
+      - GOOGLE_API_KEY="AIzaSyBjwsUItqrCaVi3Po0Qz4nd3_OwLVgDGZI" # Pass the API key from a .env file
+    volumes:
+      - ./rag-service/data:/app/data:ro # Mounts local data folder into the container
+    networks:
+      - hrms-network
+
+# --------------------
+# Networks and Volumes
+# --------------------
+networks:
+  hrms-network:
+    driver: bridge
+
+volumes:
+  mongodb:
+    driver: local
+  pgdata:
+    driver: local
+  payroll_data:
+    driver: local
